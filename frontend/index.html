@@ -40,7 +40,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;p
 </style>
 </head>
 <body>
-<header><h1>Nyaya Assist</h1><div class="sub">Demo prototype for Karnataka · All cases, parties and AI outputs are simulated; no real court data is used. Decision-support only — every proposal requires human judicial review.</div></header>
+<header><h1>Nyaya Assist</h1><div class="sub">Demo prototype for Karnataka · Sample cases only (no real court data). The learning model is real sklearn on the server. Decision-support only — every proposal requires human judicial review.</div></header>
 <nav id="nav"></nav>
 <main id="app"></main>
 <script>
@@ -75,7 +75,7 @@ function detail(c){const pred=c.pred?`<p class="mu">Model: type=<b>${esc(c.pred.
 function opView(){
  const list=S.cases.filter(c=>(!S.fc||c.cat===S.fc)&&(!S.fs||c.st===S.fs));
  const nSel=[...S.sel].map(C);
- return `<div class="card"><h2>1. Learn from settled cases</h2><div class="bar"><button class="b p" data-a="train" ${S.training||S.model?"disabled":""}>${S.model?"Model ready":S.training?"Learning…":"Start learning"}</button><span class="sub">${S.model?(S.apiLive?"Real model trained on the server (sklearn TF-IDF + logistic regression).":"Learned from settled cases (simulated fallback)."):"Learns patterns and applicable rules from past decided cases."}</span></div></div>
+ return `<div class="card"><h2>1. Learn from settled cases</h2><div class="bar"><button class="b p" data-a="train" ${S.training?"disabled":""}>${S.training?"Learning…":(S.model?"Model ready · Re-train":"Start learning")}</button><span class="sub">${S.model?(S.apiLive?"✓ Real sklearn model is live on the server. Select cases below and click Apply learning.":"Learned (simulated fallback — API was offline)."):"Trains a TF-IDF + logistic regression model from past decided cases."}</span></div></div>
  <div class="card"><h2>2. Pending cases</h2><div class="bar"><select data-f="fc"><option value="">All categories</option>${CATS.map(x=>`<option ${S.fc===x?"selected":""}>${x}</option>`).join("")}</select><select data-f="fs"><option value="">All statuses</option>${Object.keys(LBL).map(k=>`<option value="${k}" ${S.fs===k?"selected":""}>${LBL[k]}</option>`).join("")}</select><span class="sub">${list.length} cases</span></div>
  <div class="bar"><button class="b p" data-a="run" ${S.model&&!S.running&&nSel.some(c=>c.st==="pending")?"":"disabled"}>Apply learning to selected</button><button class="b p" data-a="send" ${nSel.some(c=>c.st==="proposed")?"":"disabled"}>Send proposal to parties</button><button class="b" data-a="sim" ${S.cases.some(c=>c.st==="awaiting")?"":"disabled"}>Demo: simulate party replies</button></div>
  ${list.map(c=>`<div class="row"><input type="checkbox" data-s="${c.id}" ${S.sel.has(c.id)?"checked":""} aria-label="Select ${c.id}"><div><b data-o="${c.id}">${c.id}: ${esc(c.pet)} versus ${esc(c.res)}</b><div class="sub">${c.cat} · ${esc(c.hearing)}</div></div>${tag(c)}${S.open===c.id?detail(c):""}</div>`).join("")||'<p class="sub">No cases match these filters.</p>'}</div>`}
