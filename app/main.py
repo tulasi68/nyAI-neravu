@@ -21,7 +21,11 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from rules import check_section_138
+# Support both package import (uvicorn app.main:app) and direct run from app/
+try:
+    from app.rules import check_section_138
+except ImportError:
+    from rules import check_section_138
 
 # ---------------------------------------------------------------------------
 # Paths
