@@ -1,0 +1,15 @@
+text,case_type,outcome
+"cheque dishonoured insufficient funds notice served section 138 payment not made",cheque_bounce,convicted
+"cheque dishonoured but notice not served within thirty days section 138",cheque_bounce,acquitted
+"cheque returned payment stopped by drawer demand notice within time complaint filed",cheque_bounce,convicted
+"cheque bounce notice defective postal receipt missing limitation expired",cheque_bounce,acquitted
+"motor accident claim compensation victim injured insurer liable negligence",motor_accident,allowed
+"motor accident claim policy lapsed insurer not liable no valid licence",motor_accident,dismissed
+"fatal motor accident dependants claim multiplier method insurer admitted liability",motor_accident,allowed
+"injury claim driving licence invalid at time of accident owner liable",motor_accident,dismissed
+"consumer complaint delayed flat possession refund with interest sought",consumer,allowed
+"consumer dispute defective goods no deficiency proved on documents",consumer,dismissed
+"rent eviction non-payment of rent statutory notice served",rent_tenancy,allowed
+"eviction for own use notice defective petition dismissed",rent_tenancy,dismissed
+"government servant pension arrears representation pending for years",govt_service,allowed
+"promotion claim barred by delay and laches petition dismissed",govt_service,dismissed

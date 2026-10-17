@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nyaya Assist (nyAI-neravu) — AI-assisted case resolution for Karnataka</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap">
+<style>
+:root{--bg:#eceff3;--sf:#fff;--ink:#17202b;--mu:#5b6776;--ln:#d3d9e1;--ac:#1d4f8f;--acs:#e3edf9;--ok:#13795b;--oks:#ddf3ea;--wa:#9a5b00;--was:#fdeccd;--er:#b3342a;--ers:#fbe1de;--ne:#475467;--nes:#e6e9ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f151c;--sf:#18212b;--ink:#e8edf3;--mu:#9aa6b5;--ln:#2b3745;--ac:#7fb0ee;--acs:#1c2f47;--ok:#58c9a1;--oks:#143a2e;--wa:#f0b254;--was:#3d2c0c;--er:#f08a80;--ers:#40201d;--ne:#aab4c2;--nes:#242f3b}}
+:root[data-theme="dark"]{--bg:#0f151c;--sf:#18212b;--ink:#e8edf3;--mu:#9aa6b5;--ln:#2b3745;--ac:#7fb0ee;--acs:#1c2f47;--ok:#58c9a1;--oks:#143a2e;--wa:#f0b254;--was:#3d2c0c;--er:#f08a80;--ers:#40201d;--ne:#aab4c2;--nes:#242f3b}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+header{background:var(--sf);border-bottom:1px solid var(--ln);padding:12px 16px}
+h1{font:600 20px "Source Serif 4",Georgia,serif;margin:0 0 2px}h2{font:600 17px "Source Serif 4",Georgia,serif;margin:0 0 8px}
+.sub{color:var(--mu);font-size:13px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 0}
+nav button{flex:none;border:1px solid var(--ln);background:var(--sf);color:var(--ink);padding:8px 12px;border-radius:8px 8px 0 0;font:inherit;cursor:pointer}
+nav button.on{background:var(--ac);color:var(--sf);border-color:var(--ac)}
+main{padding:14px 16px 40px;max-width:980px;margin:0 auto}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:14px;margin-bottom:12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+select,textarea,button.b{font:inherit;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:8px;padding:8px 10px}
+textarea{width:100%;min-height:70px}
+button.b{cursor:pointer;font-weight:500}button.p{background:var(--ac);color:var(--sf);border-color:var(--ac)}button.g{background:var(--ok);color:var(--sf);border-color:var(--ok)}button.r{background:var(--er);color:var(--sf);border-color:var(--er)}button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.row{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--ln)}
+.row:first-of-type{border-top:0}.row b{cursor:pointer}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;background:var(--nes);color:var(--ne)}
+.t-proposed,.t-awaiting{background:var(--was);color:var(--wa)}.t-settled,.t-closed{background:var(--oks);color:var(--ok)}.t-escalated{background:var(--ers);color:var(--er)}
+.det{grid-column:2/4;background:var(--bg);border-radius:8px;padding:10px;font-size:14px}
+.det p{margin:4px 0}.mu{color:var(--mu)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.tile{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:10px 12px}.tile b{display:block;font:600 26px "Source Serif 4",Georgia,serif}
+.stack{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--nes);margin:8px 0}.stack i{display:block}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;padding:6px 4px;border-top:1px solid var(--ln)}th{color:var(--mu);font-weight:500}
+.prop{border-left:4px solid var(--ac);background:var(--acs);padding:10px 12px;border-radius:6px;margin:8px 0}
+.msg{font-size:14px;padding:6px 0;border-top:1px solid var(--ln)}
+.wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<header><h1>Nyaya Assist</h1><div class="sub">Demo prototype for Karnataka · All cases, parties and AI outputs are simulated; no real court data is used. Decision-support only — every proposal requires human judicial review.</div></header>
+<nav id="nav"></nav>
+<main id="app"></main>
+<script>
+const CATS=["Cheque bounce","Motor accident","Consumer dispute","Rent and tenancy","Government service"];
+const OUT={"Cheque bounce":["Complaint allowed. Accused to pay the cheque amount with 9% interest and costs within 60 days.","Complaint dismissed. The demand notice was sent after the 30-day statutory limit."],
+"Motor accident":["Claim allowed. Compensation awarded by the standard multiplier method; insurer liable to pay.","Claim against insurer dismissed. Policy had lapsed; owner liable instead."],
+"Consumer dispute":["Complaint allowed. Refund with interest and compensation for deficiency in service.","Complaint dismissed. No deficiency proved on the documents filed."],
+"Rent and tenancy":["Eviction allowed. Tenant to vacate within 90 days after notice defects were found cured.","Eviction petition dismissed. Statutory notice was defective."],
+"Government service":["Petition allowed. Pension benefits to be released with arrears, following settled precedent.","Petition dismissed. Claim is barred by delay and laches."]};
+const D=[
+["KA-CB-1041","Cheque bounce","Sri Ravi Traders","Mr. Anil Kumar","Cheque of ₹4.2 lakh dishonoured: insufficient funds.",["Cheque copy","Bank return memo","Demand notice","Postal receipt"],"Arguments filed; 6 adjournments",1460,0],
+["KA-CB-1058","Cheque bounce","Meena Enterprises","Mr. S. Prakash","Cheque of ₹1.8 lakh dishonoured; notice date disputed.",["Cheque copy","Return memo","Demand notice"],"Evidence stage; 4 adjournments",980,1],
+["KA-CB-1077","Cheque bounce","Mr. D. Rao","Greenleaf Foods","Cheque of ₹9 lakh returned: payment stopped.",["Cheque copy","Return memo","Ledger extract"],"Awaiting final arguments",1210,0],
+["KA-MA-2210","Motor accident","Mrs. Lakshmi","United Motors Insurance","Fatal accident claim; dependants seek compensation.",["FIR","Postmortem report","Income proof","Policy copy"],"Written statements filed",1720,0],
+["KA-MA-2231","Motor accident","Mr. Imran Pasha","National Assurance Co.","Injury claim; insurer disputes licence validity.",["FIR","Medical bills","Driving licence","Policy copy"],"Evidence stage",1105,1],
+["KA-MA-2260","Motor accident","Master Arjun (minor)","Shree Transport","Injury claim against owner; insurance lapsed.",["FIR","Hospital records","Policy status letter"],"Arguments pending",860,1],
+["KA-CD-3302","Consumer dispute","Mrs. Kavitha","HomeNest Builders","Delayed flat possession; refund sought.",["Sale agreement","Payment receipts","Emails"],"Reply filed",1380,0],
+["KA-CD-3319","Consumer dispute","Mr. Nikhil Shah","QuickFix Appliances","Defective refrigerator, repair refused.",["Invoice","Warranty card","Service log"],"Arguments filed",420,0],
+["KA-RT-4410","Rent and tenancy","Mr. H. Gowda (landlord)","Mr. P. Nair (tenant)","Eviction for non-payment of rent.",["Lease deed","Rent ledger","Notice"],"Evidence stage",1540,0],
+["KA-RT-4427","Rent and tenancy","Mrs. Sunanda (landlord)","Mr. K. Das (tenant)","Eviction for own use; notice disputed.",["Lease deed","Notice","Postal receipt"],"Arguments pending",990,1],
+["KA-GS-5503","Government service","Mr. R. Murthy","State Pension Dept.","Retired teacher seeks pension arrears.",["Service book","Retirement order","Representation"],"Counter filed",1630,0],
+["KA-GS-5519","Government service","Ms. T. Fernandes","Dept. of Transport","Promotion denied; same issue decided earlier.",["Seniority list","Order copy","Representation"],"Arguments filed",1190,0]];
+const S={role:"op",model:false,training:false,sel:new Set(),open:null,fc:"",fs:"",pc:null,ps:"p",jc:null,log:[],
+cases:D.map(d=>({id:d[0],cat:d[1],pet:d[2],res:d[3],claim:d[4],proofs:d[5],hearing:d[6],age:d[7],lean:d[8],st:"pending",resp:{p:null,r:null},out:null,conf:0,days:0,msgs:[],by:null}))};
+const LBL={pending:"Pending",proposed:"AI proposal ready",awaiting:"Awaiting parties",settled:"Settled by AI",escalated:"With judge",closed:"Closed by judge"};
+const ROLES=[["op","Case operator"],["dash","Secretary dashboard"],["judge","Judge"],["party","Party"]];
+const $=id=>document.getElementById(id),C=id=>S.cases.find(c=>c.id===id);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const tag=c=>`<span class="tag t-${c.st}">${LBL[c.st]}</span>`;
+const note=t=>{S.log.unshift(t)};
+function detail(c){return `<div class="det"><p><b>Case:</b> ${esc(c.claim)}</p><p><b>Parties:</b> ${esc(c.pet)} versus ${esc(c.res)}</p><p><b>Submitted proof:</b> ${c.proofs.map(esc).join(", ")}</p><p><b>Hearing status:</b> ${esc(c.hearing)}; pending for ${Math.round(c.age/365*10)/10} years</p>${c.out?`<div class="prop"><b>AI proposal (confidence ${c.conf}%):</b> ${esc(c.out)}</div>`:""}</div>`}
+function opView(){
+ const list=S.cases.filter(c=>(!S.fc||c.cat===S.fc)&&(!S.fs||c.st===S.fs));
+ const nSel=[...S.sel].map(C);
+ return `<div class="card"><h2>1. Learn from settled cases</h2><div class="bar"><button class="b p" data-a="train" ${S.training||S.model?"disabled":""}>${S.model?"Model ready":S.training?"Learning…":"Start learning"}</button><span class="sub">${S.model?"Learned from 18,420 settled cases across 5 categories (simulated).":"Learns patterns and applicable rules from past decided cases."}</span></div></div>
+ <div class="card"><h2>2. Pending cases</h2><div class="bar"><select data-f="fc"><option value="">All categories</option>${CATS.map(x=>`<option ${S.fc===x?"selected":""}>${x}</option>`).join("")}</select><select data-f="fs"><option value="">All statuses</option>${Object.keys(LBL).map(k=>`<option value="${k}" ${S.fs===k?"selected":""}>${LBL[k]}</option>`).join("")}</select><span class="sub">${list.length} cases</span></div>
+ <div class="bar"><button class="b p" data-a="run" ${S.model&&nSel.some(c=>c.st==="pending")?"":"disabled"}>Apply learning to selected</button><button class="b p" data-a="send" ${nSel.some(c=>c.st==="proposed")?"":"disabled"}>Send proposal to parties</button><button class="b" data-a="sim" ${S.cases.some(c=>c.st==="awaiting")?"":"disabled"}>Demo: simulate party replies</button></div>
+ ${list.map(c=>`<div class="row"><input type="checkbox" data-s="${c.id}" ${S.sel.has(c.id)?"checked":""} aria-label="Select ${c.id}"><div><b data-o="${c.id}">${c.id}: ${esc(c.pet)} versus ${esc(c.res)}</b><div class="sub">${c.cat} · ${esc(c.hearing)}</div></div>${tag(c)}${S.open===c.id?detail(c):""}</div>`).join("")||'<p class="sub">No cases match these filters.</p>'}</div>`}
+function dashView(){
+ const n=k=>S.cases.filter(c=>c.st===k).length,T=S.cases.length;
+ const col={pending:"var(--ne)",proposed:"var(--wa)",awaiting:"var(--wa)",settled:"var(--ok)",escalated:"var(--er)",closed:"var(--ac)"};
+ const done=S.cases.filter(c=>c.st==="settled"||c.st==="closed"),ai=S.cases.filter(c=>c.days>0);
+ const avg=ai.length?(ai.reduce((a,c)=>a+c.days,0)/ai.length).toFixed(1):"–";
+ const avgAge=(S.cases.reduce((a,c)=>a+c.age,0)/T/365).toFixed(1);
+ return `<div class="tiles">${Object.keys(LBL).map(k=>`<div class="tile"><b>${n(k)}</b><span class="sub">${LBL[k]}</span></div>`).join("")}</div>
+ <div class="card"><h2>Overall progress</h2><div class="stack">${Object.keys(LBL).map(k=>`<i style="width:${n(k)/T*100}%;background:${col[k]}" title="${LBL[k]}"></i>`).join("")}</div>
+ <p class="sub">${done.length} of ${T} cases resolved. Average time on the AI track: ${avg} days (simulated), against an average pendency of ${avgAge} years before entering it.</p></div>
+ <div class="card wrap"><h2>By category</h2><table><tr><th>Category</th><th>Total</th><th>Settled by AI</th><th>With judge</th><th>Closed by judge</th></tr>${CATS.map(x=>{const k=S.cases.filter(c=>c.cat===x);return `<tr><td>${x}</td><td>${k.length}</td><td>${k.filter(c=>c.st==="settled").length}</td><td>${k.filter(c=>c.st==="escalated").length}</td><td>${k.filter(c=>c.st==="closed").length}</td></tr>`}).join("")}</table></div>
+ <div class="card"><h2>Live activity</h2>${S.log.slice(0,8).map(l=>`<div class="msg">${esc(l)}</div>`).join("")||'<p class="sub">No activity yet. Run the AI from the case operator view.</p>'}</div>`}
+function judgeView(){
+ const L=S.cases.filter(c=>c.st==="escalated"||c.st==="closed"&&c.by);const c=S.jc&&C(S.jc);
+ return `<div class="card"><h2>Cases escalated to you</h2>${L.map(x=>`<div class="row"><span></span><div><b data-j="${x.id}">${x.id}: ${esc(x.pet)} versus ${esc(x.res)}</b><div class="sub">${x.cat}</div></div>${tag(x)}</div>`).join("")||'<p class="sub">No escalated cases yet.</p>'}</div>
+ ${c?`<div class="card"><h2>${c.id}</h2>${detail(c)}<p><b>Open document:</b> ${c.proofs.map((p,i)=>`<button class="b" data-d="${i}">${esc(p)}</button>`).join(" ")}</p><p class="sub" id="doc"></p>
+ ${c.st==="escalated"?`<textarea id="jt" placeholder="Write your reasoning or your own judgment"></textarea><div class="bar"><button class="b g" data-a="jagree">Agree with AI judgment</button><button class="b p" data-a="jown">Issue my own judgment</button></div>`:`<p><b>Closed:</b> ${esc(c.by)}</p>`}
+ <textarea id="jm" placeholder="Message to both parties"></textarea><button class="b" data-a="jmsg">Send message</button>${c.msgs.map(m=>`<div class="msg">${esc(m)}</div>`).join("")}</div>`:""}`}
+function partyView(){
+ const L=S.cases;const c=C(S.pc||L[0].id);const side=S.ps;const me=side==="p"?c.pet:c.res;
+ return `<div class="card"><h2>Party login</h2><div class="bar"><select data-pc>${L.map(x=>`<option value="${x.id}" ${x.id===c.id?"selected":""}>${x.id}</option>`).join("")}</select><select data-ps><option value="p" ${side==="p"?"selected":""}>As petitioner</option><option value="r" ${side==="r"?"selected":""}>As respondent</option></select></div><p class="sub">Signed in as ${esc(me)}</p>${detail(c)}
+ ${c.st==="awaiting"?(c.resp[side]===null?`<p><b>Do you accept the AI-based judgment?</b> If either party rejects, a judge reviews the case.</p><div class="bar"><button class="b g" data-a="acc">Accept</button><button class="b r" data-a="rej">Reject</button></div>`:`<p>You ${c.resp[side]?"accepted":"rejected"} the proposal.</p>`):`<p class="sub">Status: ${LBL[c.st]}. ${c.st==="settled"?"Both parties accepted; the case is closed.":c.st==="closed"?"A judge decided: "+esc(c.by):""}</p>`}
+ ${c.msgs.map(m=>`<div class="msg">${esc(m)}</div>`).join("")}</div>`}
+function render(){
+ $("nav").innerHTML=ROLES.map(r=>`<button data-r="${r[0]}" class="${S.role===r[0]?"on":""}">${r[1]}</button>`).join("");
+ $("app").innerHTML={op:opView,dash:dashView,judge:judgeView,party:partyView}[S.role]()}
+function setPartyDone(c){if(c.resp.p===false||c.resp.r===false){c.st="escalated";note(`${c.id}: a party rejected; escalated to judge`)}else if(c.resp.p&&c.resp.r){c.st="settled";c.days+=2;note(`${c.id}: both parties accepted; settled`)}}
+document.addEventListener("click",e=>{
+ const t=e.target.closest("[data-r],[data-a],[data-o],[data-j],[data-d]");if(!t)return;
+ const d=t.dataset;
+ if(d.r)S.role=d.r;
+ if(d.o)S.open=S.open===d.o?null:d.o;
+ if(d.j)S.jc=d.j;
+ if(d.d!==undefined){const c=C(S.jc);$("doc").textContent=`Preview (demo): ${c.proofs[d.d]} filed for ${c.id}.`;return}
+ const a=d.a,sel=[...S.sel].map(C);
+ if(a==="train"){S.training=true;render();setTimeout(()=>{S.training=false;S.model=true;note("Model learned from settled cases");render()},1400);return}
+ if(a==="run"){sel.filter(c=>c.st==="pending").forEach(c=>{c.out=OUT[c.cat][c.lean];c.conf=82+(c.id.charCodeAt(7)%14);c.st="proposed";c.days+=1;note(`${c.id}: AI proposal prepared (${c.conf}% confidence)`)})}
+ if(a==="send"){sel.filter(c=>c.st==="proposed").forEach(c=>{c.st="awaiting";c.days+=1;note(`${c.id}: proposal sent to both parties`)});S.sel.clear()}
+ if(a==="sim"){S.cases.filter(c=>c.st==="awaiting").forEach((c,i)=>{c.resp.p=true;c.resp.r=c.lean===1&&i%2===0?false:true;setPartyDone(c)})}
+ if(a==="acc"||a==="rej"){const c=C(S.pc||S.cases[0].id);c.resp[S.ps]=a==="acc";setPartyDone(c)}
+ if(a==="jagree"||a==="jown"){const c=C(S.jc),t=($("jt").value||"").trim();if(a==="jown"&&!t){$("jt").placeholder="Write your judgment first";return}c.st="closed";c.days+=5;c.by=a==="jagree"?"Judge agreed with the AI judgment. "+t:"Judge issued own judgment: "+t;note(`${c.id}: closed by judge`)}
+ if(a==="jmsg"){const c=C(S.jc),t=($("jm").value||"").trim();if(!t)return;c.msgs.push("Judge: "+t);note(`${c.id}: judge messaged the parties`)}
+ render()});
+document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
+ if("f" in d)S[d.f]=t.value;
+ if("s" in d){t.checked?S.sel.add(d.s):S.sel.delete(d.s)}
+ if("pc" in d)S.pc=t.value;if("ps" in d)S.ps=t.value;
+ render()});
+render();
+</script>
+</body>
+</html>
