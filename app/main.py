@@ -15,11 +15,12 @@ from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+import io
 
 # Support both package import (uvicorn app.main:app) and direct run from app/
 try:
@@ -228,6 +229,88 @@ def train_demo():
         MODEL_PATH.unlink()
     ensure_demo_model()
     return {"status": "ok", "message": "Demo model trained and saved."}
+
+
+@app.post("/api/train")
+async def train_from_csv(file: UploadFile = File(...)):
+    """
+    Upload a CSV with columns: text, case_type, outcome
+    and retrain the live model. Research / decision-support only.
+    """
+    if not file.filename or not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Please upload a .csv file")
+
+    raw = await file.read()
+    if len(raw) > 80 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="CSV too large (max 80 MB)")
+
+    try:
+        df = pd.read_csv(io.BytesIO(raw))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not parse CSV: {e}")
+
+    colmap = {c: c.lower().strip() for c in df.columns}
+    df = df.rename(columns=colmap)
+    if "text" not in df.columns or "outcome" not in df.columns:
+        raise HTTPException(
+            status_code=400,
+            detail="CSV must have columns: text, outcome (optional: case_type)",
+        )
+    if "case_type" not in df.columns:
+        df["case_type"] = "general"
+
+    df = df.dropna(subset=["text", "outcome"]).reset_index(drop=True)
+    df["text"] = df["text"].astype(str).str.slice(0, 5000)
+    df["outcome"] = df["outcome"].astype(str).str.strip().str.lower()
+    df["case_type"] = df["case_type"].astype(str).str.strip().str.lower()
+
+    if len(df) < 20:
+        raise HTTPException(status_code=400, detail="Need at least 20 labeled rows")
+    if df["outcome"].nunique() < 2:
+        raise HTTPException(status_code=400, detail="Need at least 2 distinct outcomes")
+
+    # Cap for free-tier memory safety
+    if len(df) > 25000:
+        df = df.sample(n=25000, random_state=0).reset_index(drop=True)
+
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import classification_report
+
+    vec = TfidfVectorizer(
+        ngram_range=(1, 2), min_df=2, max_features=80_000, sublinear_tf=True
+    )
+    X = vec.fit_transform(df["text"])
+    models = {}
+    reports = {}
+    for target in ("case_type", "outcome"):
+        if df[target].nunique() < 2:
+            continue
+        Xtr, Xte, ytr, yte = train_test_split(
+            X, df[target], test_size=0.15, random_state=0
+        )
+        clf = LogisticRegression(max_iter=1000, class_weight="balanced").fit(Xtr, ytr)
+        models[target] = clf
+        reports[target] = classification_report(
+            yte, clf.predict(Xte), zero_division=0, output_dict=False
+        )
+
+    if not models:
+        raise HTTPException(status_code=400, detail="Could not train any target column")
+
+    with open(MODEL_PATH, "wb") as f:
+        pickle.dump({"vec": vec, "models": models, "X": X, "df": df}, f)
+
+    return {
+        "status": "ok",
+        "rows": len(df),
+        "targets": list(models.keys()),
+        "outcome_counts": df["outcome"].value_counts().to_dict(),
+        "case_type_counts": df["case_type"].value_counts().head(12).to_dict(),
+        "message": "Model retrained from uploaded CSV. Decision-support only.",
+        "reports": reports,
+    }
 
 
 # ---------------------------------------------------------------------------
