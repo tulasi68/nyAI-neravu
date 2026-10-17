@@ -63,7 +63,7 @@ const D=[
 ["KA-RT-4427","Rent and tenancy","Mrs. Sunanda (landlord)","Mr. K. Das (tenant)","Eviction for own use; notice disputed.",["Lease deed","Notice","Postal receipt"],"Arguments pending",990,1],
 ["KA-GS-5503","Government service","Mr. R. Murthy","State Pension Dept.","Retired teacher seeks pension arrears.",["Service book","Retirement order","Representation"],"Counter filed",1630,0],
 ["KA-GS-5519","Government service","Ms. T. Fernandes","Dept. of Transport","Promotion denied; same issue decided earlier.",["Seniority list","Order copy","Representation"],"Arguments filed",1190,0]];
-const S={role:"op",model:false,training:false,sel:new Set(),open:null,fc:"",fs:"",pc:null,ps:"p",jc:null,log:[],
+const S={role:"op",model:false,training:false,running:false,apiLive:false,sel:new Set(),open:null,fc:"",fs:"",pc:null,ps:"p",jc:null,log:[],
 cases:D.map(d=>({id:d[0],cat:d[1],pet:d[2],res:d[3],claim:d[4],proofs:d[5],hearing:d[6],age:d[7],lean:d[8],st:"pending",resp:{p:null,r:null},out:null,conf:0,days:0,msgs:[],by:null}))};
 const LBL={pending:"Pending",proposed:"AI proposal ready",awaiting:"Awaiting parties",settled:"Settled by AI",escalated:"With judge",closed:"Closed by judge"};
 const ROLES=[["op","Case operator"],["dash","Secretary dashboard"],["judge","Judge"],["party","Party"]];
@@ -71,13 +71,13 @@ const $=id=>document.getElementById(id),C=id=>S.cases.find(c=>c.id===id);
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const tag=c=>`<span class="tag t-${c.st}">${LBL[c.st]}</span>`;
 const note=t=>{S.log.unshift(t)};
-function detail(c){return `<div class="det"><p><b>Case:</b> ${esc(c.claim)}</p><p><b>Parties:</b> ${esc(c.pet)} versus ${esc(c.res)}</p><p><b>Submitted proof:</b> ${c.proofs.map(esc).join(", ")}</p><p><b>Hearing status:</b> ${esc(c.hearing)}; pending for ${Math.round(c.age/365*10)/10} years</p>${c.out?`<div class="prop"><b>AI proposal (confidence ${c.conf}%):</b> ${esc(c.out)}</div>`:""}</div>`}
+function detail(c){const pred=c.pred?`<p class="mu">Model: type=<b>${esc(c.pred.case_type||"?")}</b> (${Math.round((c.pred.case_type_confidence||0)*100)}%) · outcome=<b>${esc(c.pred.outcome||"?")}</b> (${Math.round((c.pred.outcome_confidence||0)*100)}%)</p>`:"";return `<div class="det"><p><b>Case:</b> ${esc(c.claim)}</p><p><b>Parties:</b> ${esc(c.pet)} versus ${esc(c.res)}</p><p><b>Submitted proof:</b> ${c.proofs.map(esc).join(", ")}</p><p><b>Hearing status:</b> ${esc(c.hearing)}; pending for ${Math.round(c.age/365*10)/10} years</p>${pred}${c.out?`<div class="prop"><b>AI proposal (confidence ${c.conf}%):</b> ${esc(c.out)}</div>`:""}</div>`}
 function opView(){
  const list=S.cases.filter(c=>(!S.fc||c.cat===S.fc)&&(!S.fs||c.st===S.fs));
  const nSel=[...S.sel].map(C);
- return `<div class="card"><h2>1. Learn from settled cases</h2><div class="bar"><button class="b p" data-a="train" ${S.training||S.model?"disabled":""}>${S.model?"Model ready":S.training?"Learning…":"Start learning"}</button><span class="sub">${S.model?"Learned from 18,420 settled cases across 5 categories (simulated).":"Learns patterns and applicable rules from past decided cases."}</span></div></div>
+ return `<div class="card"><h2>1. Learn from settled cases</h2><div class="bar"><button class="b p" data-a="train" ${S.training||S.model?"disabled":""}>${S.model?"Model ready":S.training?"Learning…":"Start learning"}</button><span class="sub">${S.model?(S.apiLive?"Real model trained on the server (sklearn TF-IDF + logistic regression).":"Learned from settled cases (simulated fallback)."):"Learns patterns and applicable rules from past decided cases."}</span></div></div>
  <div class="card"><h2>2. Pending cases</h2><div class="bar"><select data-f="fc"><option value="">All categories</option>${CATS.map(x=>`<option ${S.fc===x?"selected":""}>${x}</option>`).join("")}</select><select data-f="fs"><option value="">All statuses</option>${Object.keys(LBL).map(k=>`<option value="${k}" ${S.fs===k?"selected":""}>${LBL[k]}</option>`).join("")}</select><span class="sub">${list.length} cases</span></div>
- <div class="bar"><button class="b p" data-a="run" ${S.model&&nSel.some(c=>c.st==="pending")?"":"disabled"}>Apply learning to selected</button><button class="b p" data-a="send" ${nSel.some(c=>c.st==="proposed")?"":"disabled"}>Send proposal to parties</button><button class="b" data-a="sim" ${S.cases.some(c=>c.st==="awaiting")?"":"disabled"}>Demo: simulate party replies</button></div>
+ <div class="bar"><button class="b p" data-a="run" ${S.model&&!S.running&&nSel.some(c=>c.st==="pending")?"":"disabled"}>Apply learning to selected</button><button class="b p" data-a="send" ${nSel.some(c=>c.st==="proposed")?"":"disabled"}>Send proposal to parties</button><button class="b" data-a="sim" ${S.cases.some(c=>c.st==="awaiting")?"":"disabled"}>Demo: simulate party replies</button></div>
  ${list.map(c=>`<div class="row"><input type="checkbox" data-s="${c.id}" ${S.sel.has(c.id)?"checked":""} aria-label="Select ${c.id}"><div><b data-o="${c.id}">${c.id}: ${esc(c.pet)} versus ${esc(c.res)}</b><div class="sub">${c.cat} · ${esc(c.hearing)}</div></div>${tag(c)}${S.open===c.id?detail(c):""}</div>`).join("")||'<p class="sub">No cases match these filters.</p>'}</div>`}
 function dashView(){
  const n=k=>S.cases.filter(c=>c.st===k).length,T=S.cases.length;
@@ -113,8 +113,54 @@ document.addEventListener("click",e=>{
  if(d.j)S.jc=d.j;
  if(d.d!==undefined){const c=C(S.jc);$("doc").textContent=`Preview (demo): ${c.proofs[d.d]} filed for ${c.id}.`;return}
  const a=d.a,sel=[...S.sel].map(C);
- if(a==="train"){S.training=true;render();setTimeout(()=>{S.training=false;S.model=true;note("Model learned from settled cases");render()},1400);return}
- if(a==="run"){sel.filter(c=>c.st==="pending").forEach(c=>{c.out=OUT[c.cat][c.lean];c.conf=82+(c.id.charCodeAt(7)%14);c.st="proposed";c.days+=1;note(`${c.id}: AI proposal prepared (${c.conf}% confidence)`)})}
+ if(a==="train"){
+  S.training=true;render();
+  fetch("/api/train-demo",{method:"POST"}).then(r=>{
+    if(!r.ok)throw new Error("train failed "+r.status);
+    return r.json();
+  }).then(()=>{
+    S.training=false;S.model=true;S.apiLive=true;
+    note("Model trained on demo settled cases (real sklearn model on server)");
+    render();
+  }).catch(err=>{
+    // fallback: simulated learning if API unreachable
+    S.training=false;S.model=true;S.apiLive=false;
+    note("API unavailable — using simulated learning ("+err.message+")");
+    render();
+  });
+  return;
+ }
+ if(a==="run"){
+  const pending=sel.filter(c=>c.st==="pending");
+  if(!pending.length)return;
+  S.running=true;render();
+  const runOne=c=>fetch("/api/predict",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text:c.claim+" "+c.cat,k:3})
+  }).then(r=>{
+    if(!r.ok)throw new Error("predict "+r.status);
+    return r.json();
+  }).then(pred=>{
+    // Map predicted outcome to a readable draft order; fall back to category templates
+    const oc=(pred.outcome||"").toLowerCase();
+    const lean = (oc.includes("dismiss")||oc.includes("acquit")||oc==="dismissed"||oc==="acquitted")?1:0;
+    const templates=OUT[c.cat]||["Proposal prepared based on learned patterns.","Proposal prepared based on learned patterns."];
+    c.out=templates[lean];
+    c.conf=Math.round((pred.outcome_confidence||pred.case_type_confidence||0.8)*100);
+    c.pred=pred;
+    c.st="proposed";c.days+=1;
+    note(`${c.id}: AI proposal (${c.conf}% conf) type=${pred.case_type||"?"} outcome=${pred.outcome||"?"}`);
+  }).catch(err=>{
+    // fallback to canned
+    c.out=OUT[c.cat][c.lean];
+    c.conf=82+(c.id.charCodeAt(7)%14);
+    c.st="proposed";c.days+=1;
+    note(`${c.id}: API offline — simulated proposal (${c.conf}% confidence)`);
+  });
+  Promise.all(pending.map(runOne)).finally(()=>{S.running=false;render()});
+  return;
+ }
  if(a==="send"){sel.filter(c=>c.st==="proposed").forEach(c=>{c.st="awaiting";c.days+=1;note(`${c.id}: proposal sent to both parties`)});S.sel.clear()}
  if(a==="sim"){S.cases.filter(c=>c.st==="awaiting").forEach((c,i)=>{c.resp.p=true;c.resp.r=c.lean===1&&i%2===0?false:true;setPartyDone(c)})}
  if(a==="acc"||a==="rej"){const c=C(S.pc||S.cases[0].id);c.resp[S.ps]=a==="acc";setPartyDone(c)}
@@ -126,6 +172,10 @@ document.addEventListener("change",e=>{const t=e.target,d=t.dataset;
  if("s" in d){t.checked?S.sel.add(d.s):S.sel.delete(d.s)}
  if("pc" in d)S.pc=t.value;if("ps" in d)S.ps=t.value;
  render()});
+// Probe backend on load
+fetch("/api/health").then(r=>r.json()).then(h=>{
+  if(h&&h.model_loaded){S.model=true;S.apiLive=true;note("Connected to live model on server");render()}
+}).catch(()=>{});
 render();
 </script>
 </body>
