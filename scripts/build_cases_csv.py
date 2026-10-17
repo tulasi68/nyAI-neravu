@@ -10,6 +10,10 @@ Usage:
   python scripts/build_cases_csv.py
   python scripts/build_cases_csv.py --max-rows 5000 --out data/cases.csv
 
+In a notebook (Colab/Jupyter):
+  %run scripts/build_cases_csv.py
+  # or paste the cell and call main()
+
 Then train:
   python app/legal_ai.py train data/cases.csv
 
@@ -26,7 +30,11 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+# Works as a script and inside notebooks (Colab/Jupyter) where __file__ is missing
+try:
+    ROOT = Path(__file__).resolve().parents[1]
+except NameError:
+    ROOT = Path.cwd()
 DEFAULT_OUT = ROOT / "data" / "cases.csv"
 
 # Direct CSV URLs (avoids HF datasets cast issues on mixed schemas)
@@ -134,11 +142,12 @@ def load_predex(max_rows: int | None) -> pd.DataFrame:
     return out
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser(description="Build cases.csv from PredEx")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     ap.add_argument("--max-rows", type=int, default=8000, help="Cap rows (0 = all)")
-    args = ap.parse_args()
+    # parse_known_args: ignores Jupyter/Colab kernel args
+    args, _ = ap.parse_known_args(argv)
     max_rows = None if args.max_rows == 0 else args.max_rows
 
     df = load_predex(max_rows)
@@ -153,6 +162,7 @@ def main():
         f"  python app/legal_ai.py train {args.out}\n"
         "  # or POST the CSV to /api/train on the running server"
     )
+    return df
 
 
 if __name__ == "__main__":
