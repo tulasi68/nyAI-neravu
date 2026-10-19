@@ -40,7 +40,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;p
 </style>
 </head>
 <body>
-<header><div style="display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><h1>Nyaya Assist</h1><div class="sub">Demo prototype for Karnataka · Sample cases only (no real court data). The learning model is real sklearn on the server. Decision-support only — every proposal requires human judicial review.</div></div><a href="/judgment-drafting" style="display:inline-block;background:#1d4f8f;color:#fff;text-decoration:none;padding:9px 12px;border-radius:8px;font-weight:600">Open Judgment Drafting →</a></header>
+<header><h1>Nyaya Assist</h1><div class="sub">Demo prototype for Karnataka · Sample cases only (no real court data). The learning model is real sklearn on the server. Decision-support only — every proposal requires human judicial review.</div></header>
 <nav id="nav"></nav>
 <main id="app"></main>
 <script>
@@ -78,7 +78,7 @@ function opView(){
  return `<div class="card"><h2>1. Learn from settled cases</h2><div class="bar"><button class="b p" data-a="train" ${S.training?"disabled":""}>${S.training?"Learning…":(S.model?"Model ready · Re-train":"Start learning")}</button><span class="sub">${S.model?(S.apiLive?"✓ Real sklearn model is live on the server. Select cases below and click Apply learning.":"Learned (simulated fallback — API was offline)."):"Trains a TF-IDF + logistic regression model from past decided cases."}</span></div></div>
  <div class="card"><h2>2. Pending cases</h2><div class="bar"><select data-f="fc"><option value="">All categories</option>${CATS.map(x=>`<option ${S.fc===x?"selected":""}>${x}</option>`).join("")}</select><select data-f="fs"><option value="">All statuses</option>${Object.keys(LBL).map(k=>`<option value="${k}" ${S.fs===k?"selected":""}>${LBL[k]}</option>`).join("")}</select><span class="sub">${list.length} cases</span></div>
  <div class="bar"><button class="b p" data-a="run" ${S.model&&!S.running&&nSel.some(c=>c.st==="pending")?"":"disabled"}>Apply learning to selected</button><button class="b p" data-a="send" ${nSel.some(c=>c.st==="proposed")?"":"disabled"}>Send proposal to parties</button><button class="b" data-a="sim" ${S.cases.some(c=>c.st==="awaiting")?"":"disabled"}>Demo: simulate party replies</button></div>
- ${list.map(c=>`<div class="row"><input type="checkbox" data-s="${c.id}" ${S.sel.has(c.id)?"checked":""} aria-label="Select ${c.id}"><div><b data-o="${c.id}">${c.id}: ${esc(c.pet)} versus ${esc(c.res)}</b><div class="sub">${c.cat} · ${esc(c.hearing)}</div></div>${tag(c)}${S.open===c.id?detail(c):""}</div>`).join("")||'<p class="sub">No cases match these filters.</p>'}</div>`}
+ ${list.map(c=>`<div class="row"><input type="checkbox" data-s="${c.id}" ${S.sel.has(c.id)?"checked":""} aria-label="Select ${c.id}"><div><b data-o="${c.id}">${c.id}: ${esc(c.pet)} versus ${esc(c.res)}</b><div class="sub">${c.cat} · ${esc(c.hearing)}</div><div style="margin-top:7px"><button class="b" type="button" data-draft-case="${c.id}">Draft judgment for this case</button></div></div>${tag(c)}${S.open===c.id?detail(c):""}</div>`).join("")||'<p class="sub">No cases match these filters.</p>'}</div>`}
 function dashView(){
  const n=k=>S.cases.filter(c=>c.st===k).length,T=S.cases.length;
  const col={pending:"var(--ne)",proposed:"var(--wa)",awaiting:"var(--wa)",settled:"var(--ok)",escalated:"var(--er)",closed:"var(--ac)"};
@@ -106,8 +106,9 @@ function render(){
  $("app").innerHTML={op:opView,dash:dashView,judge:judgeView,party:partyView}[S.role]()}
 function setPartyDone(c){if(c.resp.p===false||c.resp.r===false){c.st="escalated";note(`${c.id}: a party rejected; escalated to judge`)}else if(c.resp.p&&c.resp.r){c.st="settled";c.days+=2;note(`${c.id}: both parties accepted; settled`)}}
 document.addEventListener("click",e=>{
- const t=e.target.closest("[data-r],[data-a],[data-o],[data-j],[data-d]");if(!t)return;
+ const t=e.target.closest("[data-r],[data-a],[data-o],[data-j],[data-d],[data-draft-case]");if(!t)return;
  const d=t.dataset;
+ if(d.draftCase){const c=C(d.draftCase);if(!c)return;const transfer={case_number:c.id,case_title:c.pet+" v. "+c.res,case_type:c.cat==="Cheque bounce"?"Section 138 Negotiable Instruments Act":c.cat,complainant:c.pet,accused:c.res,complainant_case:c.claim,procedural_history:c.hearing,evidence:c.proofs.map((p,i)=>({reference:"Record item "+(i+1),description:p})),source:"case-operator",learning_result:c.pred||null,learning_proposal:c.out||null};try{sessionStorage.setItem("nyaya-neravu-current-case",JSON.stringify(transfer));}catch(err){}window.location.href="/judgment-drafting?case_id="+encodeURIComponent(c.id);return;}
  if(d.r)S.role=d.r;
  if(d.o)S.open=S.open===d.o?null:d.o;
  if(d.j)S.jc=d.j;
