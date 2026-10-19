@@ -37,6 +37,12 @@ The goal is **faster resolution of simple cases** while preserving the judge’s
 
 ---
 
+## Structured judicial judgment drafting (v1)
+
+The backend now includes an initial structured draft composer at `POST /api/judgment-draft`. It prepares a conventional judgment outline from case details, party narratives, supplied evidence, submissions, issue-wise analysis and user-supplied verified authorities. Missing information is explicitly flagged rather than invented.
+
+This is a **drafting aid only**: it does not decide outcomes, perform live legal research, or certify that a draft is legally correct. Every draft requires independent legal and judicial review. See [the v1 API guide](docs/judgment-drafting-v1.md) and the interactive API documentation at `/docs`.
+
 ## Quick start (local)
 
 ### 1. Static demo only (no Python needed)
