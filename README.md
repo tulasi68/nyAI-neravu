@@ -1,166 +1,99 @@
-# Nyaya Assist (nyAI-neravu)
+# Nyaya Neravu (nyAI-neravu)
 
-**AI-assisted case resolution for Karnataka courts**  
-*A decision-support prototype submitted for the Government of Karnataka call for solutions to people-centric issues.*
+**AI-assisted judicial workflow and judgment-drafting prototype for evaluation in Karnataka**
 
-> **Important disclaimer**  
-> This is research / decision-support software only.  
-> Every AI proposal **must** be reviewed by a human judge.  
-> It is **not** a substitute for judicial decision-making, does not use real court data in this demo, and must never be treated as an automatic ruling.
+> **Important scope and safety notice**
+>
+> This repository is a research / decision-support prototype. It is not an autonomous adjudication system and must not determine guilt, liability, compensation, sentence or the outcome of a case. Any draft requires independent review by an authorised legal reviewer and/or judicial officer. This demo uses synthetic case data only.
+>
+> **The machine-learning demonstration is trained on synthetic examples. Its predicted outcome labels are not evidence of real-world accuracy and must not be used to recommend or determine a real case outcome.** The present judgment composer assembles supplied information into a structured draft; it does not independently understand or authenticate the full case record, conduct live legal research, or verify citations.
 
----
+## Recommended initial pilot scope
 
-## The problem we address
+The recommended first public-sector use case is **human-reviewed, record-grounded judgment drafting assistance**, subject to an authorised institution confirming a genuine need and approving the pilot.
 
-Karnataka (and India) faces a large backlog of pending cases. A significant share of the pendency consists of relatively routine matters — cheque bounce (Section 138 NI Act), motor accident claims, consumer disputes, rent & tenancy, and routine service matters. These cases often follow well-established patterns and statutory timelines. Long delays hurt ordinary citizens, small businesses and the credibility of the justice system.
+The intended workflow is to help authorised users organise supplied case particulars, procedural history, each party's position, evidence references, issues for determination, legal authorities and issue-wise analysis into an editable draft. Missing inputs should remain visible. Material assertions should be linked to the source record wherever possible. Findings and the operative order remain for independent judicial determination.
 
-**Nyaya Assist** proposes a practical, transparent workflow that:
+This repository does not establish that the system has been validated in a live court environment, reduced pendency, improved outcomes or achieved a particular Technology Readiness Level.
 
-1. Learns patterns from *past decided cases* (case type + outcome).
-2. Applies clear statutory rules (e.g. Section 138 timelines).
-3. Generates a draft proposal that both parties can accept or reject.
-4. Escalates automatically to a judge if either party objects or the matter is complex.
-5. Keeps a full activity trail for accountability.
-
-The goal is **faster resolution of simple cases** while preserving the judge’s final authority and the parties’ right to be heard.
-
----
-
-## What is included in this repository
+## What is included
 
 | Component | Description |
-|-----------|-------------|
-| **Interactive demo UI** | Four role views (Case Operator, Party, Judge, Secretary Dashboard). Fully clickable, works offline. All cases and AI outputs are simulated. |
-| **Machine-learning baseline** (`app/legal_ai.py`) | TF-IDF + Logistic Regression that classifies case type, predicts likely outcome, and retrieves similar past cases. |
-| **Statutory rules engine** (`app/rules.py`) | Deterministic checks for Section 138 NI Act limitation periods (can be extended to other Acts). |
-| **FastAPI backend** (`app/main.py`) | Serves the UI, exposes `/api/predict` and `/api/rules/section-138`, trains a demo model on first run. |
+|---|---|
+| Interactive demonstration UI | Case Operator, Party, Judge and Secretary Dashboard views. Case records and simulated AI outputs are demo material. |
+| Machine-learning baseline | TF-IDF and Logistic Regression demonstration for case-type classification, outcome labels and similar-example retrieval. Synthetic-data results must not be treated as judicial evidence or validated predictions. |
+| Statutory rules demonstration | Deterministic date checks for selected Section 138 Negotiable Instruments Act timelines. These checks do not decide whether all legal ingredients are proved and require legal review. |
+| FastAPI backend | Serves the UI and exposes prediction, rule-checking and judgment-draft endpoints. |
+| Judgment Drafting workspace | Case-linked form and structured draft output, with missing-information flags and editable/downloadable text. |
 
----
+## Case-linked judgment drafting (v1)
 
-## Structured judicial judgment drafting (v1)
+The app includes a **Judgment Drafting workspace** at `/judgment-drafting`. In Case Operator, select a case using its checkbox; a per-case **Draft judgment for this case** action appears for selected cases (and cases with a proposal). The workspace carries available demo particulars through tab-scoped session storage rather than putting case facts in the URL. The imported summary and evidence descriptions must be verified against the official record.
 
-The app includes a **case-linked Judgment Drafting workspace** at `/judgment-drafting`. In Case Operator, select a case using its checkbox; a per-case **Draft judgment for this case** action appears for selected cases (and cases with a proposal). The workspace pre-fills the case number, title, parties, case summary, case-operator status and available evidence descriptions using tab-scoped session transfer. It does not treat model predictions as findings, and it does not invent missing record details. Complete and verify the remaining inputs, then generate an editable draft, review missing-information flags, and copy or download the text. The workspace calls `POST /api/judgment-draft`.
+The backend endpoint `POST /api/judgment-draft` composes a conventional draft structure from information explicitly supplied by the user, including party narratives, supplied evidence, submissions, issues, analysis and user-provided legal authorities. It uses placeholders and flags missing information rather than intentionally filling gaps with invented facts.
 
-The backend now includes an initial structured draft composer at `POST /api/judgment-draft`. It prepares a conventional judgment outline from case details, party narratives, supplied evidence, submissions, issue-wise analysis and user-supplied verified authorities. Missing information is explicitly flagged rather than invented.
+**Current limitation:** the composer is template-based. It does not independently analyse uploaded case files, retrieve current case law, authenticate exhibits or certify legal correctness. All authorities must be independently verified. Use only synthetic, anonymised or appropriately authorised case material, and never send confidential records to an unapproved service.
 
-This is a **drafting aid only**: it does not decide outcomes, perform live legal research, or certify that a draft is legally correct. Every draft requires independent legal and judicial review. See [the v1 API guide](docs/judgment-drafting-v1.md) and the interactive API documentation at `/docs`.
+See [Judgment Drafting v1 API guide](docs/judgment-drafting-v1.md), [Government First pilot readiness plan](docs/government-first-pilot-readiness.md), and interactive API documentation at `/docs` when the service is running.
 
-## Quick start (local)
+## Quick start
 
-### 1. Static demo only (no Python needed)
+### Static demonstration
 
-```bash
-# Just open the HTML file in any modern browser
-open frontend/index.html
-# or serve it with any static server
-```
+Open `frontend/index.html` in a modern browser or serve it with a static file server.
 
-In the UI:
-
-1. Switch to **Case operator**.
-2. Click **Start learning**.
-3. Select a few pending cases → **Apply learning** → **Send proposal to parties**.
-4. Click **Demo: simulate party replies**.
-5. Check the **Secretary dashboard** and the **Judge** view for escalated cases.
-
-### 2. Full stack (UI + real model API)
+### Full stack
 
 ```bash
-# Clone
 git clone https://github.com/tulasi68/nyAI-neravu.git
 cd nyAI-neravu
 
-# Create virtual environment (recommended)
 python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-
-# Install dependencies
+# Windows: .venv\\Scripts\\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-
-# Run the server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Open http://localhost:8000  
+Open `http://localhost:8000`; API docs are at `http://localhost:8000/docs`, and health status at `http://localhost:8000/api/health`.
 
-- The same interactive UI is served.
-- API documentation (Swagger): http://localhost:8000/docs  
-- Health check: http://localhost:8000/api/health  
-
-Example prediction:
+### Run draft-composer regression tests
 
 ```bash
-curl -X POST http://localhost:8000/api/predict \
-  -H "Content-Type: application/json" \
-  -d '{"text": "complaint under section 138 cheque returned insufficient funds legal notice was served"}'
+python -m unittest discover -s tests -v
 ```
 
----
+These tests cover draft labels, missing-input behaviour and preservation of supplied references. They do **not** establish legal accuracy, security, operational readiness or suitability for court use.
 
-## Architecture (high level)
+## Architecture
 
-```
-┌─────────────────┐     ┌──────────────────────┐     ┌─────────────────┐
-│  Case Operator  │────▶│  Learning + Rules    │────▶│  AI Proposal    │
-│  (select cases) │     │  (legal_ai + rules)  │     │  (draft order)  │
-└─────────────────┘     └──────────────────────┘     └────────┬────────┘
-                                                              │
-                                                              ▼
-┌─────────────────┐     ┌──────────────────────┐     ┌─────────────────┐
-│  Party Accept / │◀────│  Both parties decide │────▶│  Escalation to  │
-│  Reject         │     │                      │     │  Judge          │
-└─────────────────┘     └──────────────────────┘     └─────────────────┘
-```
+- Frontend: HTML, CSS and JavaScript.
+- Backend: FastAPI, Pydantic, pandas and scikit-learn.
+- Draft composer: deterministic structured assembly of user-provided material.
+- Section 138 rule endpoint: date checks only, not a complete legal assessment.
 
-- If **both parties accept** → case can be closed as settled (with judicial oversight).
-- If **either rejects** or confidence is low → automatic escalation to a judge with full history and documents.
+## Data and model limitations
 
----
+The repository demo uses synthetic data. The included ML demonstration should remain isolated from any real judicial workflow unless a separately approved research protocol, appropriate dataset, independent validation, governance and legal review support a different use. High confidence from a model trained on synthetic examples is not evidence of real-world reliability.
 
-## Data note
+Do not train on, upload or expose actual case records without a lawful basis, institutional authorisation and approved privacy/security arrangements. No real court integration or approved operational deployment is established by this repository.
 
-This prototype ships with **synthetic data only**.  
+## Pilot roadmap
 
-For a real pilot the system can be trained on open datasets (eCourts / AWS Open Data, NyayaAnumana, PredEx, Indian Kanoon extracts) after proper anonymisation and legal clearance. The training script expects a simple CSV:
+1. **Prototype tests:** Add and run automated tests for input validation, source references, missing information and safety labels.
+2. **Synthetic-record evaluation:** Test deliberately incomplete and contradictory fictional records.
+3. **Expert review:** Obtain structured review of factual traceability, citation validity, completeness and correction effort.
+4. **Institution-approved controlled pilot:** Proceed only with an authorised partner, written data/security arrangements, agreed evaluation criteria and human oversight.
+5. **Operational validation:** Document results and limitations before making any readiness or impact claim.
 
-```
-text,case_type,outcome
-"...",cheque_bounce,convicted
-...
-```
+See [Government First pilot readiness plan](docs/government-first-pilot-readiness.md) for the readiness gaps and eligibility checklist.
 
----
+## Government First application note
 
-## Roadmap (suggested for a Karnataka pilot)
+The repository is a prototype / pre-pilot project. Do not claim TRL 7, live-court validation, measured reductions in pendency, legal accuracy or government adoption without evidence meeting the programme's requirements. A government pilot depends on programme eligibility, institutional sponsorship, approvals and selection.
 
-| Phase | Focus |
-|-------|--------|
-| **0 – Demo (this repo)** | Interactive workflow + baseline model + Section 138 rules |
-| **1 – Pilot design** | Select 1–2 court complexes, define data-sharing & privacy protocol, Kannada UI |
-| **2 – Integration** | eCourts case status feed, secure document store, role-based auth (SSO) |
-| **3 – Evaluation** | Measure reduction in average disposal time for routine cases while tracking quality & appeal rates |
-| **4 – Scale** | Additional case categories, multi-language support, audit dashboard for High Court / Law Department |
+## Licence and contributions
 
----
+Please treat all outputs as advisory drafts only. Contributions should prioritise source traceability, legal-authority integrity, privacy, security, accessibility, testability and human oversight.
 
-## Technology stack
-
-- Frontend: pure HTML/CSS/JS (no framework) — easy to host and audit
-- Backend: FastAPI + scikit-learn + pandas
-- Rules: pure Python (easy for legal experts to review and extend)
-- Deployment options: any static host for the UI; Railway / Render / Fly.io / on-prem VM for the API
-
----
-
-## Licence & contribution
-
-This repository is published for evaluation by the Government of Karnataka and interested stakeholders.  
-
-Please treat all AI outputs as **advisory only**.  
-
-For questions or to discuss a pilot, open an issue in this repository or contact the maintainers.
-
----
-
-**Nyaya Assist / nyAI-neravu**  
-*Supporting faster justice for the people of Karnataka — under the supervision of the judiciary.*
+**Nyaya Neravu — supporting reviewable drafting assistance while preserving judicial independence.**
