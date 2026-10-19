@@ -39,6 +39,8 @@ The goal is **faster resolution of simple cases** while preserving the judge’s
 
 ## Structured judicial judgment drafting (v1)
 
+The app now includes a dedicated **Judgment Drafting workspace** at `/judgment-drafting`, linked from the main screen. Enter case particulars, procedural history, both parties’ cases, issues, evidence, submissions, verified authorities and issue-wise analysis; generate an editable draft, review missing-information flags, and copy or download the text. The workspace calls the backend at `POST /api/judgment-draft`.
+
 The backend now includes an initial structured draft composer at `POST /api/judgment-draft`. It prepares a conventional judgment outline from case details, party narratives, supplied evidence, submissions, issue-wise analysis and user-supplied verified authorities. Missing information is explicitly flagged rather than invented.
 
 This is a **drafting aid only**: it does not decide outcomes, perform live legal research, or certify that a draft is legally correct. Every draft requires independent legal and judicial review. See [the v1 API guide](docs/judgment-drafting-v1.md) and the interactive API documentation at `/docs`.
