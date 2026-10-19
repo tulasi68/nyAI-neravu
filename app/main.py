@@ -327,6 +327,15 @@ async def train_from_csv(file: UploadFile = File(...)):
 # ---------------------------------------------------------------------------
 # Serve frontend
 # ---------------------------------------------------------------------------
+@app.get("/judgment-drafting", response_class=HTMLResponse)
+def serve_judgment_drafting():
+    """Serve the interactive judgment drafting workspace."""
+    page = FRONTEND_DIR / "judgment-drafting.html"
+    if not page.exists():
+        raise HTTPException(status_code=404, detail="Judgment drafting page not found")
+    return FileResponse(page)
+
+
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
     index = FRONTEND_DIR / "index.html"
