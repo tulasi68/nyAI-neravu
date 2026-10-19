@@ -18,6 +18,7 @@ button,.link{display:inline-block;border:0;border-radius:8px;padding:10px 14px;b
 <header><h1>Nyaya Neravu</h1><p>Judgment drafting workspace · Section 138 NI Act and other case types</p></header>
 <main>
 <div class="notice"><strong>Judicial safeguard:</strong> This tool composes a structured draft from information supplied by the user. It does not decide the case, verify law live, or replace judicial reasoning. Check every fact, exhibit, legal authority and proposed direction against the official record. Use only anonymised or authorised case information.</div>
+<div id="caseContext" class="status" hidden></div>
 <div class="layout">
 <section class="panel">
 <h2>Case record and drafting inputs</h2>
@@ -54,6 +55,27 @@ button,.link{display:inline-block;border:0;border-radius:8px;padding:10px 14px;b
 </main>
 <script>
 const $=id=>document.getElementById(id);
+// Import only the selected case's currently available context from the case-operator page.
+// Transfer uses tab-scoped session storage rather than putting case facts in the URL.
+(function importCaseContext(){
+ const caseId=new URLSearchParams(window.location.search).get("case_id");
+ let item=null;
+ try{item=JSON.parse(sessionStorage.getItem("nyaya-neravu-current-case")||"null");sessionStorage.removeItem("nyaya-neravu-current-case")}catch(e){}
+ if(!item||!caseId||item.case_number!==caseId)return;
+ $("caseContext").hidden=false;
+ $("caseContext").innerHTML="<strong>Case linked:</strong> "+escapeHtml(item.case_number+" — "+item.case_title)+"<br>Basic case details have been carried forward from Case Operator. The supplied summary and item descriptions are not a substitute for the official record. Complete or verify the remaining fields.";
+ const put=(id,value)=>{if(value!==undefined&&value!==null&&String(value).trim())$(id).value=value};
+ put("number",item.case_number);put("title",item.case_title);put("complainant",item.complainant);put("accused",item.accused);put("complainantCase",item.complainant_case);
+ if(item.case_type){const opts=[...$("type").options];const match=opts.find(o=>o.text===item.case_type)||opts.find(o=>item.case_type==="Motor accident"&&o.text==="Motor accident claim")||opts.find(o=>item.case_type==="Consumer dispute"&&o.text==="Consumer dispute")||opts.find(o=>item.case_type==="Rent and tenancy"&&o.text==="Rent and tenancy")||opts.find(o=>item.case_type==="Government service"&&o.text==="Other civil or criminal matter");if(match)$("type").value=match.value}
+ if(item.procedural_history)put("history","Case operator status (verify against official record): "+item.procedural_history+"\nComplete procedural history, including relevant orders, dates, evidence and arguments, from the official court record.");
+ if(Array.isArray(item.evidence)&&item.evidence.length)$("evidence").value=item.evidence.map(e=>"Reference to verify | "+e.description+" | Exhibit/document number and relevant excerpt not supplied").join("\n");
+ $("status").textContent="Case "+item.case_number+" linked. Imported fields are prefilled; verify them and add the missing record material before generating a draft.";
+ if(item.learning_result||item.learning_proposal){
+  const extra=document.createElement("p");extra.className="hint";
+  extra.textContent="A learning result may exist on the case-operator screen. It is not imported as a factual finding, legal analysis or judicial disposition.";
+  $("caseContext").appendChild(extra);
+ }
+})();
 const lines=id=>$ (id).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
 function splitLine(s,n){const a=s.split("|").map(x=>x.trim());return {a,valid:a.length>=n&&a.slice(0,n).every(Boolean)}}
 $("caseForm").addEventListener("submit",async e=>{
