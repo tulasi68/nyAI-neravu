@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Judgment Drafting | Nyaya Neravu</title>
+<style>
+:root{color-scheme:light;--navy:#102d50;--blue:#215b96;--bg:#f3f6fa;--line:#d5deea;--muted:#5c6b7d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#172536;font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--navy);color:white;padding:22px max(18px,calc((100% - 1100px)/2))}header h1{margin:0;font-size:26px}header p{margin:5px 0 0;color:#d8e5f5}
+main{max-width:1100px;margin:22px auto;padding:0 16px 48px}.notice{background:#fff6df;border:1px solid #ead49b;border-radius:10px;padding:13px 16px;margin-bottom:16px}
+.layout{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);gap:16px;align-items:start}.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}.panel h2{font-size:20px;margin:0 0 12px}.panel h3{font-size:16px;margin:18px 0 8px}
+label{display:block;font-weight:600;font-size:13px;margin:11px 0 5px}input,select,textarea{width:100%;font:inherit;font-size:14px;padding:10px;border:1px solid #b9c7d8;border-radius:7px;background:white;color:#172536}textarea{min-height:76px;resize:vertical}.hint{font-size:12px;color:var(--muted);margin-top:4px}
+button,.link{display:inline-block;border:0;border-radius:8px;padding:10px 14px;background:var(--blue);color:white;font:600 14px system-ui;cursor:pointer;text-decoration:none}button.secondary{background:#e7edf5;color:#183652;border:1px solid #c9d6e5}button:disabled{opacity:.6;cursor:wait}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+#draft{min-height:460px;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap}.status{padding:10px 12px;background:#edf4fc;border-radius:7px;margin:12px 0;font-size:13px}.missing{background:#fff4df;border:1px solid #ead49b;border-radius:8px;padding:12px;margin:10px 0}.missing ul{margin:5px 0 0;padding-left:22px}.ok{background:#e7f7ef;border:1px solid #b4e0c8}
+@media(max-width:800px){.layout{grid-template-columns:1fr}header{padding:18px}main{margin-top:14px}.panel{padding:14px}}
+</style></head>
+<body>
+<header><h1>Nyaya Neravu</h1><p>Judgment drafting workspace · Section 138 NI Act and other case types</p></header>
+<main>
+<div class="notice"><strong>Judicial safeguard:</strong> This tool composes a structured draft from information supplied by the user. It does not decide the case, verify law live, or replace judicial reasoning. Check every fact, exhibit, legal authority and proposed direction against the official record. Use only anonymised or authorised case information.</div>
+<div class="layout">
+<section class="panel">
+<h2>Case record and drafting inputs</h2>
+<form id="caseForm">
+<label for="court">Court name</label><input id="court" placeholder="e.g. Court of the Judicial Magistrate First Class">
+<label for="number">Case number</label><input id="number" placeholder="e.g. C.C. No. 123/2025">
+<label for="title">Case title / parties as recorded</label><input id="title" placeholder="Complainant v. Accused">
+<label for="type">Case type</label><select id="type"><option>Section 138 Negotiable Instruments Act</option><option>Motor accident claim</option><option>Consumer dispute</option><option>Rent and tenancy</option><option>Other civil or criminal matter</option></select>
+<label for="judge">Presiding officer (optional)</label><input id="judge">
+<label for="date">Judgment date (optional)</label><input id="date" placeholder="DD-MM-YYYY">
+<label for="complainant">Complainant / petitioner</label><input id="complainant">
+<label for="accused">Accused / respondent</label><input id="accused">
+<label for="history">Procedural history</label><textarea id="history" placeholder="Filing, cognizance, plea, evidence, exhibits, adjournments, arguments and procedural orders."></textarea>
+<label for="complainantCase">Complainant's case</label><textarea id="complainantCase" placeholder="Summarise allegations and relief sought, grounded in the record."></textarea>
+<label for="defence">Defence case</label><textarea id="defence" placeholder="State the defence fairly, including disputed facts and contrary evidence."></textarea>
+<h3>Points for determination</h3><label for="issues">One point per line</label><textarea id="issues" placeholder="Whether the cheque was drawn by the accused on the account maintained by them?&#10;Whether statutory notice and limitation requirements are proved?"></textarea>
+<label for="laws">Verified legal authorities (one per line)</label><textarea id="laws" placeholder="Paste citations only after checking authoritative sources."></textarea>
+<h3>Evidence</h3><label for="evidence">One item per line: Reference | description | optional relevant excerpt</label><textarea id="evidence" placeholder="Ex.P1 | Original cheque | Cheque number and date as recorded&#10;Ex.P2 | Bank return memo | Reason stated by bank"></textarea>
+<h3>Party submissions</h3><label for="submissions">One item per line: Party | submission</label><textarea id="submissions" placeholder="Complainant | Statutory presumption applies on the proved facts.&#10;Accused | The complainant has not established service of notice."></textarea>
+<h3>Issue-wise analysis</h3><label for="analysis">One item per line: Point number | applicable law/test | analysis | record references</label><textarea id="analysis" placeholder="1 | Applicable statutory provision and verified precedent | Assess evidence for and against each element; do not assume missing facts | Ex.P1, Ex.D1"></textarea>
+<label for="disposition">Proposed disposition for judicial consideration</label><textarea id="disposition" placeholder="Enter the tentative conclusion for review, or leave blank for an explicit placeholder."></textarea>
+<label for="order">Proposed operative order (optional)</label><textarea id="order" placeholder="Only directions supported by findings independently reached by the court."></textarea>
+<div class="actions"><button id="generate" type="submit">Generate structured draft</button><button class="secondary" type="reset">Clear form</button></div>
+<p class="hint">Drafts are generated only when you click the button. This page does not save case data to an account.</p>
+</form>
+</section>
+<section class="panel">
+<h2>Judgment draft</h2><div id="status" class="status" role="status">Complete the record inputs, then select “Generate structured draft”.</div>
+<div id="missing"></div>
+<label for="draft">Editable draft text</label><textarea id="draft" placeholder="The generated judgment draft will appear here. You can edit it before copying for review."></textarea>
+<div class="actions"><button id="copy" type="button" class="secondary">Copy draft</button><button id="download" type="button" class="secondary">Download .txt</button></div>
+<div class="hint">Generated text is a working draft only. Edits in this box are local to this browser page.</div>
+</section></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const lines=id=>$ (id).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+function splitLine(s,n){const a=s.split("|").map(x=>x.trim());return {a,valid:a.length>=n&&a.slice(0,n).every(Boolean)}}
+$("caseForm").addEventListener("submit",async e=>{
+ e.preventDefault();const btn=$("generate");btn.disabled=true;$("status").textContent="Generating a structured draft from the supplied record…";$("missing").innerHTML="";
+ const issues=lines("issues").map(s=>({question:s}));
+ const evidence=lines("evidence").map(s=>{const p=splitLine(s,2);return {reference:p.a[0]||"UNLABELLED",description:p.a[1]||s,record_excerpt:p.a.slice(2).join(" | ")||null}});
+ const submissions=lines("submissions").map(s=>{const p=splitLine(s,2);return {party:p.a[0]||"Party not specified",text:p.a.slice(1).join(" | ")||s}});
+ const analysis=lines("analysis");
+ analysis.forEach((s,i)=>{const p=splitLine(s,4);if(issues[i]){issues[i].applicable_law=p.a[1]||"";issues[i].analysis=p.a[2]||"";issues[i].record_references=(p.a[3]||"").split(",").map(x=>x.trim()).filter(Boolean)}});
+ const body={court_name:$("court").value,case_number:$("number").value,case_title:$("title").value,case_type:$("type").value,judge_name:$("judge").value,judgment_date:$("date").value,complainant:$("complainant").value,accused:$("accused").value,procedural_history:$("history").value,complainant_case:$("complainantCase").value,defence_case:$("defence").value,issues,evidence,submissions,verified_legal_authorities:lines("laws"),proposed_disposition:$("disposition").value,proposed_order:$("order").value};
+ try{const response=await fetch("/api/judgment-draft",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.detail||("Request failed: "+response.status));$("draft").value=data.draft||"";$("status").textContent="Draft generated. It remains unvalidated and requires independent judicial/legal review.";const miss=data.missing_information||[];$("missing").innerHTML=miss.length?'<div class="missing"><strong>Information to complete or verify</strong><ul>'+miss.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ul></div>':'<div class="status ok">The required composer fields are present; this does not mean the law or reasoning has been validated.</div>'}
+ catch(err){$("status").textContent="Could not reach the drafting API: "+err.message+". Confirm the updated backend is running and that this page is served by the same application."}
+ finally{btn.disabled=false}
+});
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+$("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("draft").value);$("status").textContent="Draft copied to clipboard."}catch(e){$("draft").focus();$("draft").select();$("status").textContent="Select the text and copy it using your browser shortcut."}});
+$("download").addEventListener("click",()=>{const blob=new Blob([$("draft").value],{type:"text/plain;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="nyaya-neravu-judgment-draft.txt";a.click();URL.revokeObjectURL(url)});
+$("caseForm").addEventListener("reset",()=>{setTimeout(()=>{$("draft").value="";$("missing").innerHTML="";$("status").textContent="Form cleared. No case information was saved."},0)});
+</script></body></html>
