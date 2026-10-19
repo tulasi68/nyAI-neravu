@@ -39,7 +39,7 @@ The goal is **faster resolution of simple cases** while preserving the judge’s
 
 ## Structured judicial judgment drafting (v1)
 
-The app now includes a dedicated **Judgment Drafting workspace** at `/judgment-drafting`, linked from the main screen. Enter case particulars, procedural history, both parties’ cases, issues, evidence, submissions, verified authorities and issue-wise analysis; generate an editable draft, review missing-information flags, and copy or download the text. The workspace calls the backend at `POST /api/judgment-draft`.
+The app includes a **case-linked Judgment Drafting workspace** at `/judgment-drafting`. In Case Operator, select a case using its checkbox; a per-case **Draft judgment for this case** action appears for selected cases (and cases with a proposal). The workspace pre-fills the case number, title, parties, case summary, case-operator status and available evidence descriptions using tab-scoped session transfer. It does not treat model predictions as findings, and it does not invent missing record details. Complete and verify the remaining inputs, then generate an editable draft, review missing-information flags, and copy or download the text. The workspace calls `POST /api/judgment-draft`.
 
 The backend now includes an initial structured draft composer at `POST /api/judgment-draft`. It prepares a conventional judgment outline from case details, party narratives, supplied evidence, submissions, issue-wise analysis and user-supplied verified authorities. Missing information is explicitly flagged rather than invented.
 
