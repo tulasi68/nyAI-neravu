@@ -25,8 +25,10 @@ import io
 # Support both package import (uvicorn app.main:app) and direct run from app/
 try:
     from app.rules import check_section_138
+    from app.judgment_drafter import JudgmentRequest, build_draft
 except ImportError:
     from rules import check_section_138
+    from judgment_drafter import JudgmentRequest, build_draft
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -207,6 +209,15 @@ def predict(req: PredictRequest):
         )
     result.similar_cases = similar
     return result
+
+
+@app.post("/api/judgment-draft")
+def judgment_draft(req: JudgmentRequest):
+    """Compose a formal draft from supplied record material; never decides the case."""
+    try:
+        return build_draft(req)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not compose draft: {e}")
 
 
 @app.post("/api/rules/section-138", response_model=Section138Response)
