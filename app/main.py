@@ -418,11 +418,11 @@ def pc_raise_objection(case_id: str, req: pc.ObjectionCreate, x_demo_token: Opti
 @app.post("/api/peoples-court/cases/{case_id}/objections/{objection_id}/response")
 def pc_respond_objection(
     case_id: str, objection_id: str, req: pc.ObjectionResponse,
-    actor_role: str = "ai_advisory", x_demo_token: Optional[str] = Header(None)
+    x_demo_token: Optional[str] = Header(None)
 ):
     _require_peoples_court_demo(x_demo_token)
     try:
-        return pc.store.respond(case_id, objection_id, req, actor_role).model_dump(mode="json")
+        return pc.store.respond(case_id, objection_id, req, "demo_advisory_responder").model_dump(mode="json")
     except KeyError:
         raise HTTPException(status_code=404, detail="Demo case or objection not found.")
     except ValueError as exc:
@@ -431,11 +431,11 @@ def pc_respond_objection(
 
 @app.post("/api/peoples-court/cases/{case_id}/request-judicial-review")
 def pc_request_judicial_review(
-    case_id: str, actor_role: str = "case_operator", x_demo_token: Optional[str] = Header(None)
+    case_id: str, x_demo_token: Optional[str] = Header(None)
 ):
     _require_peoples_court_demo(x_demo_token)
     try:
-        return pc.store.request_judicial_review(case_id, actor_role).model_dump(mode="json")
+        return pc.store.request_judicial_review(case_id, "demo_case_operator").model_dump(mode="json")
     except KeyError:
         raise HTTPException(status_code=404, detail="Demo case not found.")
     except ValueError as exc:
@@ -444,12 +444,11 @@ def pc_request_judicial_review(
 
 @app.post("/api/peoples-court/cases/{case_id}/return-for-correction")
 def pc_return_for_correction(
-    case_id: str, reason: str, actor_role: str = "judicial_officer",
-    x_demo_token: Optional[str] = Header(None)
+    case_id: str, reason: str, x_demo_token: Optional[str] = Header(None)
 ):
     _require_peoples_court_demo(x_demo_token)
     try:
-        return pc.store.return_for_correction(case_id, actor_role, reason).model_dump(mode="json")
+        return pc.store.return_for_correction(case_id, "demo_review_operator", reason).model_dump(mode="json")
     except KeyError:
         raise HTTPException(status_code=404, detail="Demo case not found.")
     except ValueError as exc:
