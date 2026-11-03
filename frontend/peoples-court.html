@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI–People's Court | Nyaya Neravu</title>
+<style>
+:root{color-scheme:light dark;--bg:#f3f5f8;--card:#fff;--ink:#182230;--muted:#5d6878;--line:#d7dde6;--accent:#24548b;--warn:#8b4c00;--bad:#9b2727}
+@media(prefers-color-scheme:dark){:root{--bg:#101720;--card:#19232e;--ink:#edf2f7;--muted:#a8b4c2;--line:#354251;--accent:#86b8f2;--warn:#f0bd73;--bad:#ff9e9e}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}header{padding:20px max(16px,calc((100vw - 1100px)/2));background:var(--card);border-bottom:1px solid var(--line)}main{max-width:1100px;margin:auto;padding:18px 16px 48px}h1{margin:0;font-size:24px}h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:18px 0 8px}.muted{color:var(--muted);font-size:13px}.warning{border:1px solid #c58a2c;background:#fff4dc;color:#613900;border-radius:9px;padding:12px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}label{display:block;font-size:13px;font-weight:650;margin:9px 0 4px}input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:7px;padding:9px}textarea{min-height:90px;resize:vertical}button{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;margin:7px 5px 0 0}button.primary{background:var(--accent);color:white;border-color:var(--accent)}button:disabled{opacity:.45}.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.status{display:inline-block;border-radius:20px;padding:3px 9px;background:#e8edf4;color:#26384d;font-size:12px;font-weight:700}.panel{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 ui-monospace,monospace;background:var(--bg);padding:12px;border-radius:8px}.hidden{display:none}.audit{font-size:13px;border-top:1px solid var(--line);padding:7px 0}.small{font-size:12px}
+</style>
+</head>
+<body>
+<header><h1>AI–People's Court</h1><div class="muted">Nyaya Neravu · synthetic-only workflow prototype · not an authorised court service</div></header>
+<main>
+<div class="warning"><b>Research demo only.</b> Do not enter real, confidential, identifiable, or live court records. No output here is a judicial order or binding decision. This prototype uses an in-memory store, has no user identity verification, and must not be exposed publicly or used for actual adjudication. AI and citizen reviews are advisory; only a legally authorised judicial officer may make a determination under applicable law.</div>
+<section class="card">
+<h2>Connect to locally enabled demo API</h2>
+<div class="grid"><div><label for="token">Demo token</label><input id="token" type="password" autocomplete="off" placeholder="Paste NYAYA_PEOPLES_COURT_DEMO_TOKEN"><div class="muted">The token is kept in this tab's memory only.</div></div><div><label>API status</label><div id="apiStatus" class="muted">Checking status…</div><button class="primary" id="connect">Connect / refresh cases</button></div></div>
+</section>
+<div class="grid">
+<section class="card">
+<h2>1. Create synthetic case</h2>
+<label>Demo case number</label><input id="caseNo" placeholder="DEMO-CIV-001">
+<label>Case title</label><input id="title" placeholder="A v B (fictional)">
+<label>Case category</label><select id="category"><option value="civil">Civil</option><option value="consumer">Consumer</option><option value="family">Family</option><option value="criminal">Criminal (synthetic only)</option><option value="constitutional">Constitutional</option><option value="service">Service</option><option value="motor_accident">Motor accident</option><option value="other">Other</option></select>
+<label>Jurisdiction note (fictional)</label><input id="jurisdiction" placeholder="Example: jurisdiction to be verified by court">
+<label>Party A label</label><input id="partyA" placeholder="Fictional claimant A">
+<label>Party B label</label><input id="partyB" placeholder="Fictional respondent B">
+<label>Issues summary</label><textarea id="issues" placeholder="State the fictional issues; do not include a proposed outcome"></textarea>
+<label>Evidence references (one per line: reference | description)</label><textarea id="evidence" placeholder="Ex.P1 | Fictional contract&#10;Ex.D1 | Fictional reply"></textarea>
+<label><input id="synthetic" type="checkbox" style="width:auto"> I confirm all data is synthetic and contains no real personal data.</label>
+<button class="primary" id="createCase">Create case</button>
+</section>
+<section class="card">
+<h2>2. Select and inspect case</h2>
+<label>Available demo cases</label><select id="caseSelect"><option value="">Connect and load cases</option></select>
+<div id="caseInfo" class="muted">Select a case to see its workflow, objections and audit events.</div>
+<div class="row"><button id="refresh">Refresh</button><button id="requestReview">Request judicial review</button><button id="returnCorrection">Return for correction</button></div>
+</section>
+</div>
+<section class="card">
+<h2>3. Submit a proposed draft for review</h2>
+<div class="muted">This form accepts a draft prepared elsewhere. It does not claim to generate legal reasoning, retrieve current law, or verify citations.</div>
+<label>Draft text (must be explicitly marked as a draft)</label><textarea id="draftText" placeholder="DRAFT ONLY — NOT A JUDICIAL DECISION&#10;Insert fictional draft text…"></textarea>
+<label>Issues considered (one per line)</label><textarea id="draftIssues" placeholder="Issue 1…"></textarea>
+<label>Authorities supplied and independently verified (one per line)</label><textarea id="authorities" placeholder="No authorities verified in this fictional example"></textarea>
+<label>Source coverage and limitations</label><textarea id="sourceCoverage" placeholder="List source coverage, missing documents and verification limitations"></textarea>
+<button class="primary" id="submitDraft">Submit draft to advisory review</button>
+</section>
+<div class="grid">
+<section class="card">
+<h2>4. Independent citizen review</h2>
+<label>Reviewer identifier (demo pseudonym)</label><input id="reviewer" placeholder="reviewer-01">
+<label>Review result</label><select id="verdict"><option value="agree">Agree, subject to human review</option><option value="object">Object</option><option value="insufficient_record">Insufficient record</option></select>
+<label><input id="fairness" type="checkbox" style="width:auto"> Both sides represented fairly</label>
+<label><input id="contrary" type="checkbox" style="width:auto"> Contrary evidence considered</label>
+<label><input id="traceability" type="checkbox" style="width:auto"> Material findings trace to source records</label>
+<label>Review comments</label><textarea id="reviewComments" placeholder="Explain your independent review, including limitations"></textarea>
+<label>Evidence references (one per line)</label><textarea id="reviewRefs" placeholder="Ex.P1"></textarea>
+<button class="primary" id="submitReview">Record advisory review</button>
+</section>
+<section class="card">
+<h2>5. Raise an objection</h2>
+<label>Reviewer identifier</label><input id="objector" placeholder="reviewer-01">
+<label>Issue</label><input id="objectionIssue" placeholder="Missing contrary evidence">
+<label>Severity</label><select id="severity"><option value="minor">Minor</option><option value="material">Material</option><option value="critical">Critical</option></select>
+<label>Explanation</label><textarea id="objectionExplanation" placeholder="Explain the concern and what must be checked"></textarea>
+<label>Affected evidence references (one per line)</label><textarea id="objectionRefs"></textarea>
+<button class="primary" id="raiseObjection">Record objection</button>
+<div class="panel"><h3>Respond to an objection</h3>
+<label>Objection ID</label><input id="objectionId" placeholder="Select ID from case details below">
+<label>Response / corrective action</label><textarea id="objectionResponse"></textarea>
+<label>Disposition</label><select id="objectionDisposition"><option value="addressed">Addressed in revised draft</option><option value="partly_addressed">Partly addressed</option><option value="unresolved">Unresolved; judicial review required</option></select>
+<button id="respondObjection">Record response</button></div>
+</section>
+</div>
+<section class="card">
+<h2>6. Human judicial determination record</h2>
+<div class="warning">This prototype records a reference to an independent determination; it does not issue, sign, or create a legally valid order.</div>
+<label>Judicial officer identifier (fictional)</label><input id="officer" placeholder="officer-demo-01">
+<label>Reference to the independently authored determination</label><input id="outcomeRef" placeholder="Fictional order reference / document identifier">
+<label>Reasons (minimum 20 characters)</label><textarea id="reasons" placeholder="Explain independent assessment, applicable law, evidence and reasons. Do not paste real case information."></textarea>
+<label><input id="originalReviewed" type="checkbox" style="width:auto"> Original record reviewed</label>
+<label><input id="dissentReviewed" type="checkbox" style="width:auto"> Panel dissent and objections considered</label>
+<label><input id="independent" type="checkbox" style="width:auto"> I confirm this is an independent human determination, not an AI-selected outcome</label>
+<button class="primary" id="determine">Record determination attestation</button>
+</section>
+<section class="card">
+<h2>Workflow record and audit trail</h2><div id="record">No case loaded.</div>
+</section>
+<div id="message" role="status" aria-live="polite" class="muted"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);let currentId=null;let token="";
+const splitLines=id=>$(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
+const refs=id=>splitLines(id).map(line=>{const i=line.indexOf("|");return i<0?{reference:line,description:line}:{reference:line.slice(0,i).trim(),description:line.slice(i+1).trim()||line.slice(0,i).trim()}});
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function say(s){$("message").textContent=s}
+async function api(path,opts={}){const r=await fetch(path,{...opts,headers:{"Content-Type":"application/json","X-Demo-Token":token,...(opts.headers||{})}});const data=await r.json().catch(()=>({detail:"Non-JSON response"}));if(!r.ok)throw new Error(data.detail||("HTTP "+r.status));return data}
+async function refreshCases(){const data=await api("/api/peoples-court/cases");const sel=$("caseSelect");sel.innerHTML='<option value="">Select a case</option>'+data.cases.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.case_number)+' · '+esc(c.status)+'</option>').join("");if(currentId&&data.cases.some(c=>c.id===currentId))sel.value=currentId;else if(data.cases.length){sel.value=data.cases[0].id;currentId=sel.value}if(currentId)await loadCase(currentId);say("Loaded "+data.count+" synthetic case(s).")}
+async function loadCase(id){currentId=id;if(!id)return;const c=await api("/api/peoples-court/cases/"+encodeURIComponent(id));$("caseSelect").value=id;$("caseInfo").innerHTML='<p><b>'+esc(c.case_number)+'</b> <span class="status">'+esc(c.status)+'</span></p><p>'+esc(c.title)+' · '+esc(c.category)+'</p><p>'+esc(c.issue_summary)+'</p><p class="muted">'+c.evidence.length+' evidence reference(s) · '+c.reviews.length+' review(s) · '+c.objections.length+' objection(s)</p>'+(c.warnings||[]).map(w=>'<p class="muted">'+esc(w)+'</p>').join("");$("record").innerHTML='<h3>Draft package</h3>'+(c.draft?'<pre>'+esc(c.draft.draft_text)+'</pre><p class="muted">Source coverage: '+esc(c.draft.source_coverage_note)+'</p>':'<p class="muted">No draft submitted.</p>')+'<h3>Panel reviews</h3>'+(c.reviews.length?c.reviews.map(r=>'<div class="audit"><b>'+esc(r.reviewer_id)+'</b> · '+esc(r.verdict)+'<br>'+esc(r.comments)+'</div>').join(""):'<p class="muted">No reviews.</p>')+'<h3>Objections</h3>'+(c.objections.length?c.objections.map(o=>'<div class="audit"><b>'+esc(o.objection_id)+'</b> · '+esc(o.severity)+' · '+esc(o.issue)+'<br>'+esc(o.explanation)+'<br><span class="muted">Response: '+esc((c.objection_responses[o.objection_id]||{}).response||"not yet recorded")+'</span></div>').join(""):'<p class="muted">No objections.</p>')+'<h3>Determination record</h3>'+(c.determination?'<pre>'+esc(JSON.stringify(c.determination,null,2))+'</pre>':'<p class="muted">No determination recorded.</p>')+'<h3>Audit trail</h3>'+c.audit.map(a=>'<div class="audit">'+esc(a.at)+' · <b>'+esc(a.event_type)+'</b> ('+esc(a.actor_role)+') — '+esc(a.summary)+'</div>').join("");}
+$("connect").onclick=async()=>{token=$("token").value.trim();try{const s=await fetch("/api/peoples-court").then(r=>r.json());$("apiStatus").textContent="API "+s.status+" · "+s.mode+" · "+s.durability;if(s.status!=="enabled")throw new Error("Demo API is disabled. Enable it only for local synthetic-data testing.");await refreshCases()}catch(e){say(e.message)}};
+$("refresh").onclick=()=>refreshCases().catch(e=>say(e.message));
+$("caseSelect").onchange=()=>loadCase($("caseSelect").value).catch(e=>say(e.message));
+$("createCase").onclick=async()=>{try{if(!$("synthetic").checked)throw new Error("Confirm synthetic-only data first.");const body={case_number:$("caseNo").value,title:$("title").value,category:$("category").value,jurisdiction_note:$("jurisdiction").value,party_a_label:$("partyA").value,party_b_label:$("partyB").value,issue_summary:$("issues").value,evidence:refs("evidence").map(e=>({...e,authenticated_by_court:false})),synthetic_data_attestation:true};const c=await api("/api/peoples-court/cases",{method:"POST",body:JSON.stringify(body)});currentId=c.id;await refreshCases();say("Synthetic case created. No court record or legal decision has been created.")}catch(e){say(e.message)}};
+$("submitDraft").onclick=async()=>{try{if(!$("draftText").value.trim().toUpperCase().startsWith("DRAFT"))throw new Error("Draft text must begin with a visible DRAFT label.");const body={submitted_by_role:"demo_draft_operator",package:{draft_text:$("draftText").value,issues_considered:splitLines("draftIssues"),authorities:splitLines("authorities"),limitations:[],source_coverage_note:$("sourceCoverage").value,human_review_required:true}};await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/draft",{method:"POST",body:JSON.stringify(body)});await loadCase(currentId);say("Draft submitted for advisory review.")}catch(e){say(e.message)}};
+$("submitReview").onclick=async()=>{try{const body={reviewer_id:$("reviewer").value,verdict:$("verdict").value,fairness_check:$("fairness").checked,contrary_evidence_check:$("contrary").checked,source_traceability_check:$("traceability").checked,comments:$("reviewComments").value,referenced_evidence:splitLines("reviewRefs")};await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/reviews",{method:"POST",body:JSON.stringify(body)});await loadCase(currentId);say("Advisory review recorded. It is not a verdict.")}catch(e){say(e.message)}};
+$("raiseObjection").onclick=async()=>{try{const body={reviewer_id:$("objector").value,issue:$("objectionIssue").value,explanation:$("objectionExplanation").value,severity:$("severity").value,affected_references:splitLines("objectionRefs")};await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/objections",{method:"POST",body:JSON.stringify(body)});await loadCase(currentId);say("Objection recorded.")}catch(e){say(e.message)}};
+$("respondObjection").onclick=async()=>{try{const disposition=$("objectionDisposition").value;const body={response:$("objectionResponse").value,disposition,unresolved:disposition==="unresolved"};await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/objections/"+encodeURIComponent($("objectionId").value)+"/response?actor_role=demo_ai_advisory",{method:"POST",body:JSON.stringify(body)});await loadCase(currentId);say("Objection response recorded. Material or unresolved concerns require judicial review.")}catch(e){say(e.message)}};
+$("requestReview").onclick=async()=>{try{await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/request-judicial-review?actor_role=demo_operator",{method:"POST"});await loadCase(currentId);say("Referred to judicial review stage.")}catch(e){say(e.message)}};
+$("returnCorrection").onclick=async()=>{try{const reason=prompt("Synthetic demo: state reason for correction");if(!reason)return;await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/return-for-correction?actor_role=demo_officer&reason="+encodeURIComponent(reason),{method:"POST"});await loadCase(currentId);say("Returned for correction.")}catch(e){say(e.message)}};
+$("determine").onclick=async()=>{try{const body={judicial_officer_id:$("officer").value,outcome_reference:$("outcomeRef").value,reasons:$("reasons").value,reviewed_original_record:$("originalReviewed").checked,considered_panel_dissent:$("dissentReviewed").checked,confirms_independent_judgment:$("independent").checked};await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/determination",{method:"POST",body:JSON.stringify(body)});await loadCase(currentId);say("Determination attestation recorded in the demo. This is not a court-issued order.")}catch(e){say(e.message)}};
+fetch("/api/peoples-court").then(r=>r.json()).then(s=>$("apiStatus").textContent="API "+s.status+" · "+s.mode+" · "+s.durability).catch(()=>$("apiStatus").textContent="API unavailable");
+</script>
+</body></html>
