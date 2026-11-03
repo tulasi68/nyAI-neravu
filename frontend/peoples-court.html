@@ -110,6 +110,19 @@ $("respondObjection").onclick=async()=>{try{const disposition=$("objectionDispos
 $("requestReview").onclick=async()=>{try{await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/request-judicial-review?actor_role=demo_operator",{method:"POST"});await loadCase(currentId);say("Referred to judicial review stage.")}catch(e){say(e.message)}};
 $("returnCorrection").onclick=async()=>{try{const reason=prompt("Synthetic demo: state reason for correction");if(!reason)return;await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/return-for-correction?actor_role=demo_officer&reason="+encodeURIComponent(reason),{method:"POST"});await loadCase(currentId);say("Returned for correction.")}catch(e){say(e.message)}};
 $("determine").onclick=async()=>{try{const body={judicial_officer_id:$("officer").value,outcome_reference:$("outcomeRef").value,reasons:$("reasons").value,reviewed_original_record:$("originalReviewed").checked,considered_panel_dissent:$("dissentReviewed").checked,confirms_independent_judgment:$("independent").checked};await api("/api/peoples-court/cases/"+encodeURIComponent(currentId)+"/determination",{method:"POST",body:JSON.stringify(body)});await loadCase(currentId);say("Determination attestation recorded in the demo. This is not a court-issued order.")}catch(e){say(e.message)}};
-fetch("/api/peoples-court").then(r=>r.json()).then(s=>$("apiStatus").textContent="API "+s.status+" · "+s.mode+" · "+s.durability).catch(()=>$("apiStatus").textContent="API unavailable");
+
+$("analyzeRecord").onclick=async()=>{try{
+ if(!$("analysisSynthetic").checked)throw new Error("Confirm synthetic-only data first.");
+ const lines=id=>$(id).value.split("\\n").map(x=>x.trim()).filter(Boolean);
+ const parts=line=>line.split("|").map(x=>x.trim());
+ const sources=lines("analysisSources").map(line=>{const p=parts(line);if(p.length<3||!p[0]||!p[1]||!p[2])throw new Error("Each source line needs reference | description | excerpt.");return {reference:p[0],description:p[1],text:p.slice(2).join(" | "),source_type:"synthetic_excerpt"}});
+ const positions=lines("analysisPositions").map(line=>{const p=parts(line);if(p.length<2)throw new Error("Each party position needs party label | position | references.");return {party_label:p[0],position:p[1],references:(p[2]||"").split(",").map(x=>x.trim()).filter(Boolean)}});
+ const claims=lines("analysisClaims").map(line=>{const p=parts(line);if(p.length<3)throw new Error("Each claim needs claim ID | party | claim text | cited references.");return {claim_id:p[0],side:p[1],claim_text:p[2],cited_references:(p[3]||"").split(",").map(x=>x.trim()).filter(Boolean)}});
+ const body={synthetic_data_attestation:true,case_number:$("analysisCaseNo").value,case_category:$("analysisCategory").value,issues:lines("analysisIssues"),sources,party_positions:positions,claims};
+ const report=await api("/api/peoples-court/analyze-record",{method:"POST",body:JSON.stringify(body)});
+ $("analysisOutput").innerHTML='<h3>Source inventory</h3><pre>'+esc(JSON.stringify(report.source_inventory,null,2))+'</pre><h3>Issue-to-source candidate map</h3><pre>'+esc(JSON.stringify(report.issue_source_map,null,2))+'</pre><h3>Claim traceability</h3><pre>'+esc(JSON.stringify(report.claim_traceability,null,2))+'</pre><h3>Party-position coverage</h3><pre>'+esc(JSON.stringify(report.party_position_coverage,null,2))+'</pre><h3>Potential conflicts — human review required</h3><pre>'+esc(JSON.stringify(report.potential_conflicts_for_human_review,null,2))+'</pre><h3>Completeness flags</h3><pre>'+esc(JSON.stringify(report.completeness_flags,null,2))+'</pre><h3>Limitations</h3><ul>'+report.limitations.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
+ say("Traceability report generated. It does not determine facts or recommend an outcome.");
+ }catch(e){say(e.message)}};
+\nfetch("/api/peoples-court").then(r=>r.json()).then(s=>$("apiStatus").textContent="API "+s.status+" · "+s.mode+" · "+s.durability).catch(()=>$("apiStatus").textContent="API unavailable");
 </script>
 </body></html>
