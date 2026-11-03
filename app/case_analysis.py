@@ -51,6 +51,17 @@ class RecordClaim(BaseModel):
     cited_references: List[str] = Field(default_factory=list, max_length=50)
 
 
+class LegalAuthorityReference(BaseModel):
+    citation: str = Field(min_length=1, max_length=500)
+    proposition_relied_on: str = Field(min_length=1, max_length=2000)
+    official_source_url: Optional[str] = Field(None, max_length=2000)
+    court_or_issuer: Optional[str] = Field(None, max_length=300)
+    provision_or_paragraph: Optional[str] = Field(None, max_length=300)
+    checked_by: Optional[str] = Field(None, max_length=160)
+    checked_date: Optional[str] = Field(None, max_length=40)
+    currentness_checked: bool = False
+
+
 class AnalysisRequest(BaseModel):
     synthetic_data_attestation: bool
     case_number: str = Field(min_length=1, max_length=120)
@@ -59,6 +70,7 @@ class AnalysisRequest(BaseModel):
     sources: List[RecordSource] = Field(min_length=1, max_length=100)
     party_positions: List[PartyPosition] = Field(default_factory=list, max_length=30)
     claims: List[RecordClaim] = Field(default_factory=list, max_length=100)
+    legal_authorities: List[LegalAuthorityReference] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")
     def validate_synthetic_and_unique_sources(self):
@@ -145,6 +157,15 @@ def analyze_record(req: AnalysisRequest) -> dict:
                         "requires_human_review": True,
                     })
 
+    authority_review = []
+    for authority in req.legal_authorities:
+        authority_review.append({
+            **authority.model_dump(),
+            "verification_state": "user_attested_not_independently_verified",
+            "metadata_complete": bool(authority.official_source_url and authority.court_or_issuer and authority.checked_by and authority.checked_date and authority.currentness_checked),
+            "review_note": "The application has not opened the URL or independently verified citation text, precedential status, amendments, overruling, or currentness.",
+        })
+
     missing_issue_sources = [x["issue"] for x in issue_results if not x["source_found"]]
     unknown_citations = [
         {"claim_id": c["claim_id"], "references": c["unknown_references"]}
@@ -166,6 +187,7 @@ def analyze_record(req: AnalysisRequest) -> dict:
         ],
         "issue_source_map": issue_results,
         "claim_traceability": claim_results,
+        "legal_authority_register": authority_review,
         "party_position_coverage": party_coverage,
         "potential_conflicts_for_human_review": potential_conflicts,
         "completeness_flags": {
@@ -175,12 +197,13 @@ def analyze_record(req: AnalysisRequest) -> dict:
             "party_positions_recorded": len(req.party_positions),
             "parties_without_positions": [],
             "legal_authorities_verified": False,
+            "authorities_without_complete_user_verification_metadata": [a["citation"] for a in authority_review if not a["metadata_complete"]],
         },
         "limitations": [
             "This is deterministic lexical analysis, not a legal AI model or legal advice.",
             "A word match does not prove a fact, support a proposition, authenticate a document, or establish admissibility.",
             "Potential conflicts are heuristic flags only; they may be false positives or miss real conflicts.",
-            "The tool does not retrieve or verify statutes, regulations, precedents, amendments, or current law.",
+            "The tool does not retrieve or verify statutes, regulations, precedents, amendments, or current law. Authority metadata is user-supplied and remains unverified by the application.",
             "The tool does not assess credibility, guilt, liability, damages, custody, bail, sentence, or the proper outcome.",
             "All original documents, translations, missing exhibits, objections, and arguments from every party must be reviewed by an authorised human.",
             "Synthetic records only; no real personal, confidential, or live court data may be submitted.",
