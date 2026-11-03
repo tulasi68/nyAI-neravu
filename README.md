@@ -111,6 +111,12 @@ Run the workflow regression tests with:
 python -m unittest discover -s tests -v
 ```
 
+## Synthetic case-record traceability analysis
+
+The AI–People's Court page now includes a **synthetic record traceability** workspace. It maps supplied issues to candidate source excerpts using lexical overlap, lists claims and cited references, flags unknown citations and uncited claims, and highlights potential language/negation differences for human review. See [the traceability milestone notes](docs/case-record-traceability.md).
+
+This is a deterministic completeness aid, **not semantic legal AI**. It does not verify that an exhibit proves a claim, authenticate documents, assess admissibility, retrieve current Indian law, or recommend an outcome. Synthetic data only; demo API remains disabled by default.
+
 ## Government First application note
 
 The repository is a prototype / pre-pilot project. Do not claim TRL 7, live-court validation, measured reductions in pendency, legal accuracy or government adoption without evidence meeting the programme's requirements. A government pilot depends on programme eligibility, institutional sponsorship, approvals and selection.
