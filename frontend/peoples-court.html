@@ -89,6 +89,20 @@
 <h2>Workflow record and audit trail</h2><div id="record">No case loaded.</div>
 </section>
 <div id="message" role="status" aria-live="polite" class="muted"></div>
+
+<section class="card">
+<h2>7. Synthetic record analysis: source traceability</h2>
+<div class="warning">Deterministic text-overlap and completeness checks only — not a legal AI judge. A source match does not prove a claim, and no current law is retrieved or verified. Use fictional text only.</div>
+<label>Case number</label><input id="analysisCaseNo" placeholder="DEMO-TRACE-001">
+<label>Case category</label><select id="analysisCategory"><option value="civil">Civil</option><option value="consumer">Consumer</option><option value="family">Family</option><option value="criminal">Criminal (synthetic only)</option><option value="constitutional">Constitutional</option><option value="service">Service</option><option value="motor_accident">Motor accident</option><option value="other">Other</option></select>
+<label>Issues for review (one per line)</label><textarea id="analysisIssues" placeholder="Whether the fictional agreement was signed&#10;Whether payment was made"></textarea>
+<label>Source documents (one per line: reference | description | fictional excerpt)</label><textarea id="analysisSources" placeholder="Ex.P1 | Fictional agreement | A signed agreement states that payment is due on 1 June.&#10;Ex.D1 | Fictional reply | The respondent denies signing the agreement and states no payment was due."></textarea>
+<label>Party positions (one per line: party label | position | comma-separated source references)</label><textarea id="analysisPositions" placeholder="Claimant A | Says agreement was signed and payment is overdue | Ex.P1&#10;Respondent B | Denies signature and disputes amount | Ex.D1"></textarea>
+<label>Specific claims to trace (one per line: claim ID | party | claim text | comma-separated cited references)</label><textarea id="analysisClaims" placeholder="C1 | Claimant A | The agreement was signed by both parties | Ex.P1&#10;C2 | Respondent B | The respondent did not sign the agreement | Ex.D1"></textarea>
+<label><input id="analysisSynthetic" type="checkbox" style="width:auto"> I confirm all entered text is fictional and contains no real personal data.</label>
+<button class="primary" id="analyzeRecord">Analyse source traceability</button>
+<div id="analysisOutput" class="panel muted" aria-live="polite">The report will list candidate source links, missing references, unlinked claims and potential language conflicts for human review.</div>
+</section>
 </main>
 <script>
 const $=id=>document.getElementById(id);let currentId=null;let token="";
