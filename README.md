@@ -25,6 +25,7 @@ This repository does not establish that the system has been validated in a live 
 | Statutory rules demonstration | Deterministic date checks for selected Section 138 Negotiable Instruments Act timelines. These checks do not decide whether all legal ingredients are proved and require legal review. |
 | FastAPI backend | Serves the UI and exposes prediction, rule-checking and judgment-draft endpoints. |
 | Judgment Drafting workspace | Case-linked form and structured draft output, with missing-information flags and editable/downloadable text. |
+| AI–People's Court workflow prototype | Synthetic-only case intake, advisory panel reviews, objections, response tracking, judicial-review escalation, determination attestations and in-memory audit trail. |
 
 ## Case-linked judgment drafting (v1)
 
@@ -87,6 +88,28 @@ Do not train on, upload or expose actual case records without a lawful basis, in
 5. **Operational validation:** Document results and limitations before making any readiness or impact claim.
 
 See [Government First pilot readiness plan](docs/government-first-pilot-readiness.md) for the readiness gaps and eligibility checklist.
+
+## AI–People's Court workflow prototype
+
+The prototype workflow is available at `/peoples-court`. It demonstrates a proposed sequence of synthetic case intake, draft-package submission, independent citizen review, objection recording and response, escalation, and a human judicial-officer determination attestation. See [AI–People's Court proposal and pilot plan](docs/ai-peoples-court-proposal.md).
+
+The workflow API is **disabled by default**. To test locally with fictional records only:
+
+```bash
+export NYAYA_PEOPLES_COURT_DEMO_ENABLED=true
+export NYAYA_PEOPLES_COURT_DEMO_TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/peoples-court` and paste the generated token. Keep the server bound to loopback. The demo store is process-local and is lost on restart. The shared demo token is not production authentication; do not expose this service publicly or enter real case data.
+
+This prototype does **not** independently analyse a complete case record, verify live legal authorities, authenticate exhibits, integrate with a court, or issue valid judgments. The panel is advisory. The `decided` status is a workflow marker only, not a legal order. Real deployment requires institutional authorisation, a durable and secure data architecture, identity and access controls, independent legal/security validation, and a lawful adjudicatory framework.
+
+Run the workflow regression tests with:
+
+```bash
+python -m unittest discover -s tests -v
+```
 
 ## Government First application note
 
