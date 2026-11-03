@@ -10,12 +10,13 @@ from __future__ import annotations
 
 import os
 import pickle
+import secrets
 from datetime import date
 from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -26,9 +27,11 @@ import io
 try:
     from app.rules import check_section_138
     from app.judgment_drafter import JudgmentRequest, build_draft
+    from app import peoples_court as pc
 except ImportError:
     from rules import check_section_138
     from judgment_drafter import JudgmentRequest, build_draft
+    import peoples_court as pc
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -323,6 +326,155 @@ async def train_from_csv(file: UploadFile = File(...)):
         "reports": reports,
     }
 
+
+
+# ---------------------------------------------------------------------------
+# AI–People's Court: synthetic-only advisory workflow prototype
+# ---------------------------------------------------------------------------
+def _require_peoples_court_demo(x_demo_token: Optional[str]) -> None:
+    """Fail closed unless an operator explicitly enables the local demo."""
+    if os.getenv("NYAYA_PEOPLES_COURT_DEMO_ENABLED", "").lower() != "true":
+        raise HTTPException(status_code=404, detail="People's Court demo API is disabled.")
+    expected = os.getenv("NYAYA_PEOPLES_COURT_DEMO_TOKEN", "")
+    if len(expected) < 24:
+        raise HTTPException(
+            status_code=503,
+            detail="Demo token is not safely configured. Set a random token of at least 24 characters.",
+        )
+    if not x_demo_token or not secrets.compare_digest(x_demo_token, expected):
+        raise HTTPException(status_code=401, detail="Valid X-Demo-Token header required.")
+
+
+@app.get("/api/peoples-court")
+def peoples_court_status():
+    enabled = os.getenv("NYAYA_PEOPLES_COURT_DEMO_ENABLED", "").lower() == "true"
+    return {
+        "product": "AI–People's Court",
+        "status": "enabled" if enabled else "disabled",
+        "mode": "synthetic-only, non-binding research prototype",
+        "durability": "in-memory only; records are lost on process restart",
+        "legal_effect": "No AI output, panel review, or workflow status is a court order or binding decision.",
+        "production_ready": False,
+    }
+
+
+@app.post("/api/peoples-court/cases")
+def pc_create_case(req: pc.CaseCreate, x_demo_token: Optional[str] = Header(None)):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.create(req).model_dump(mode="json")
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.get("/api/peoples-court/cases")
+def pc_list_cases(x_demo_token: Optional[str] = Header(None)):
+    _require_peoples_court_demo(x_demo_token)
+    return {"cases": pc.store.list(), "count": len(pc.store.list())}
+
+
+@app.get("/api/peoples-court/cases/{case_id}")
+def pc_get_case(case_id: str, x_demo_token: Optional[str] = Header(None)):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.get(case_id).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case not found.")
+
+
+@app.post("/api/peoples-court/cases/{case_id}/draft")
+def pc_submit_draft(case_id: str, req: pc.DraftSubmission, x_demo_token: Optional[str] = Header(None)):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.submit_draft(case_id, req).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case not found.")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@app.post("/api/peoples-court/cases/{case_id}/reviews")
+def pc_submit_review(case_id: str, req: pc.PanelReviewCreate, x_demo_token: Optional[str] = Header(None)):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.review(case_id, req).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case not found.")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@app.post("/api/peoples-court/cases/{case_id}/objections")
+def pc_raise_objection(case_id: str, req: pc.ObjectionCreate, x_demo_token: Optional[str] = Header(None)):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.object(case_id, req).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case or objection not found.")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@app.post("/api/peoples-court/cases/{case_id}/objections/{objection_id}/response")
+def pc_respond_objection(
+    case_id: str, objection_id: str, req: pc.ObjectionResponse,
+    actor_role: str = "ai_advisory", x_demo_token: Optional[str] = Header(None)
+):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.respond(case_id, objection_id, req, actor_role).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case or objection not found.")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@app.post("/api/peoples-court/cases/{case_id}/request-judicial-review")
+def pc_request_judicial_review(
+    case_id: str, actor_role: str = "case_operator", x_demo_token: Optional[str] = Header(None)
+):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.request_judicial_review(case_id, actor_role).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case not found.")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@app.post("/api/peoples-court/cases/{case_id}/return-for-correction")
+def pc_return_for_correction(
+    case_id: str, reason: str, actor_role: str = "judicial_officer",
+    x_demo_token: Optional[str] = Header(None)
+):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.return_for_correction(case_id, actor_role, reason).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case not found.")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@app.post("/api/peoples-court/cases/{case_id}/determination")
+def pc_record_determination(
+    case_id: str, req: pc.JudicialDetermination, x_demo_token: Optional[str] = Header(None)
+):
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return pc.store.determine(case_id, req).model_dump(mode="json")
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Demo case not found.")
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@app.get("/peoples-court", response_class=HTMLResponse)
+def serve_peoples_court():
+    page = FRONTEND_DIR / "peoples-court.html"
+    if not page.exists():
+        raise HTTPException(status_code=404, detail="People's Court demo page not found.")
+    return FileResponse(page)
 
 # ---------------------------------------------------------------------------
 # Serve frontend
