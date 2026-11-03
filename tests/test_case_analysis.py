@@ -1,7 +1,7 @@
 """Tests for conservative synthetic case-record traceability analysis."""
 import unittest
 
-from app.case_analysis import AnalysisRequest, RecordSource, RecordClaim, PartyPosition, analyze_record
+from app.case_analysis import AnalysisRequest, RecordSource, RecordClaim, PartyPosition, LegalAuthorityReference, analyze_record
 
 
 class CaseAnalysisTests(unittest.TestCase):
@@ -59,6 +59,25 @@ class CaseAnalysisTests(unittest.TestCase):
                 RecordSource(reference="X", description="one", text="fictional one"),
                 RecordSource(reference="X", description="two", text="fictional two"),
             ])
+
+
+    def test_legal_authorities_are_never_claimed_independently_verified(self):
+        req = self.request(legal_authorities=[
+            LegalAuthorityReference(
+                citation="Fictional Authority 2026",
+                proposition_relied_on="Illustrative proposition only",
+                official_source_url="https://example.invalid/authority",
+                court_or_issuer="Fictional court",
+                provision_or_paragraph="paragraph 4",
+                checked_by="reviewer-demo",
+                checked_date="2026-01-01",
+                currentness_checked=True,
+            )
+        ])
+        report = analyze_record(req)
+        authority = report["legal_authority_register"][0]
+        self.assertEqual(authority["verification_state"], "user_attested_not_independently_verified")
+        self.assertFalse(report["completeness_flags"]["legal_authorities_verified"])
 
     def test_claim_without_citation_is_flagged(self):
         req = self.request(claims=[RecordClaim(claim_id="C3", side="Neutral",
