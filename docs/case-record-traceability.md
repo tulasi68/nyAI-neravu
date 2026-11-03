@@ -18,7 +18,7 @@
 
 ## Important limitation
 
-This is **not semantic AI case analysis**. It does not read uploaded PDFs, verify source authenticity, determine admissibility, decide whether an exhibit proves a claim, retrieve or verify law, or issue a legal outcome. The lexical-overlap method may miss relevant evidence and produce false matches. All source links are candidates for a qualified human reviewer.
+This is **not semantic AI case analysis**. It does not read uploaded PDFs, verify source authenticity, determine admissibility, decide whether an exhibit proves a claim, retrieve or verify law, or issue a legal outcome. Legal-authority metadata is an audit prompt only; even a fully completed user attestation is not independent verification. The lexical-overlap method may miss relevant evidence and produce false matches. All source links are candidates for a qualified human reviewer.
 
 ## Manual test
 
