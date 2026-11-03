@@ -142,7 +142,7 @@ class AuditEvent(BaseModel):
     summary: str
 
 
-class People'sCourtCase(BaseModel):
+class PeoplesCourtCase(BaseModel):
     id: str
     case_number: str
     title: str
@@ -169,10 +169,10 @@ class InMemoryCaseStore:
     """Single-process synthetic demo store. Not durable or production safe."""
 
     def __init__(self):
-        self._items: Dict[str, People'sCourtCase] = {}
+        self._items: Dict[str, PeoplesCourtCase] = {}
         self._lock = RLock()
 
-    def _event(self, case: People'sCourtCase, role: str, event: str, summary: str):
+    def _event(self, case: PeoplesCourtCase, role: str, event: str, summary: str):
         case.audit.append(AuditEvent(
             event_id=str(uuid4()), at=utc_now(), actor_role=role,
             event_type=event, summary=summary[:1000]
@@ -183,18 +183,18 @@ class InMemoryCaseStore:
         with self._lock:
             return [item.model_dump(mode="json") for item in self._items.values()]
 
-    def get(self, case_id: str) -> People'sCourtCase:
+    def get(self, case_id: str) -> PeoplesCourtCase:
         with self._lock:
             if case_id not in self._items:
                 raise KeyError(case_id)
             return self._items[case_id].model_copy(deep=True)
 
-    def create(self, req: CaseCreate) -> People'sCourtCase:
+    def create(self, req: CaseCreate) -> PeoplesCourtCase:
         with self._lock:
             if any(c.case_number == req.case_number for c in self._items.values()):
                 raise ValueError("A case with this demo case number already exists.")
             now = utc_now()
-            case = People'sCourtCase(
+            case = PeoplesCourtCase(
                 id=str(uuid4()), case_number=req.case_number, title=req.title,
                 category=req.category, jurisdiction_note=req.jurisdiction_note,
                 party_a_label=req.party_a_label, party_b_label=req.party_b_label,
@@ -210,7 +210,7 @@ class InMemoryCaseStore:
             self._event(case, "case_operator", "case_created", "Synthetic case record created.")
             return case.model_copy(deep=True)
 
-    def submit_draft(self, case_id: str, req: DraftSubmission) -> People'sCourtCase:
+    def submit_draft(self, case_id: str, req: DraftSubmission) -> PeoplesCourtCase:
         with self._lock:
             case = self._require(case_id)
             if case.status not in (WorkflowStatus.INTAKE, WorkflowStatus.RETURNED_FOR_CORRECTION):
@@ -228,7 +228,7 @@ class InMemoryCaseStore:
                         "Draft submitted for independent advisory panel review.")
             return case.model_copy(deep=True)
 
-    def review(self, case_id: str, req: PanelReviewCreate) -> People'sCourtCase:
+    def review(self, case_id: str, req: PanelReviewCreate) -> PeoplesCourtCase:
         with self._lock:
             case = self._require(case_id)
             if case.status != WorkflowStatus.PANEL_REVIEW:
@@ -246,7 +246,7 @@ class InMemoryCaseStore:
                 case.status = WorkflowStatus.OBJECTIONS_PENDING
             return case.model_copy(deep=True)
 
-    def object(self, case_id: str, req: ObjectionCreate) -> People'sCourtCase:
+    def object(self, case_id: str, req: ObjectionCreate) -> PeoplesCourtCase:
         with self._lock:
             case = self._require(case_id)
             if case.status not in (WorkflowStatus.PANEL_REVIEW, WorkflowStatus.OBJECTIONS_PENDING):
@@ -262,7 +262,7 @@ class InMemoryCaseStore:
                         f"{req.severity.value} objection raised: {req.issue}")
             return case.model_copy(deep=True)
 
-    def respond(self, case_id: str, objection_id: str, req: ObjectionResponse, actor_role: str) -> People'sCourtCase:
+    def respond(self, case_id: str, objection_id: str, req: ObjectionResponse, actor_role: str) -> PeoplesCourtCase:
         with self._lock:
             case = self._require(case_id)
             if case.status not in (WorkflowStatus.OBJECTIONS_PENDING, WorkflowStatus.JUDICIAL_REVIEW):
@@ -279,7 +279,7 @@ class InMemoryCaseStore:
                 case.status = WorkflowStatus.JUDICIAL_REVIEW
             return case.model_copy(deep=True)
 
-    def request_judicial_review(self, case_id: str, actor_role: str) -> People'sCourtCase:
+    def request_judicial_review(self, case_id: str, actor_role: str) -> PeoplesCourtCase:
         with self._lock:
             case = self._require(case_id)
             if case.status not in (WorkflowStatus.PANEL_REVIEW, WorkflowStatus.OBJECTIONS_PENDING):
@@ -291,7 +291,7 @@ class InMemoryCaseStore:
                         "Case referred for independent judicial determination.")
             return case.model_copy(deep=True)
 
-    def determine(self, case_id: str, req: JudicialDetermination) -> People'sCourtCase:
+    def determine(self, case_id: str, req: JudicialDetermination) -> PeoplesCourtCase:
         with self._lock:
             case = self._require(case_id)
             if case.status != WorkflowStatus.JUDICIAL_REVIEW:
@@ -314,7 +314,7 @@ class InMemoryCaseStore:
                         "Human judicial officer recorded an independent determination reference.")
             return case.model_copy(deep=True)
 
-    def return_for_correction(self, case_id: str, actor_role: str, reason: str) -> People'sCourtCase:
+    def return_for_correction(self, case_id: str, actor_role: str, reason: str) -> PeoplesCourtCase:
         with self._lock:
             case = self._require(case_id)
             if case.status not in (WorkflowStatus.PANEL_REVIEW, WorkflowStatus.OBJECTIONS_PENDING, WorkflowStatus.JUDICIAL_REVIEW):
@@ -323,7 +323,7 @@ class InMemoryCaseStore:
             self._event(case, actor_role, "returned_for_correction", reason)
             return case.model_copy(deep=True)
 
-    def _require(self, case_id: str) -> People'sCourtCase:
+    def _require(self, case_id: str) -> PeoplesCourtCase:
         if case_id not in self._items:
             raise KeyError(case_id)
         return self._items[case_id]
