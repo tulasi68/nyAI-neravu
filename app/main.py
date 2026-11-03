@@ -28,10 +28,12 @@ try:
     from app.rules import check_section_138
     from app.judgment_drafter import JudgmentRequest, build_draft
     from app import peoples_court as pc
+    from app.case_analysis import AnalysisRequest, analyze_record
 except ImportError:
     from rules import check_section_138
     from judgment_drafter import JudgmentRequest, build_draft
     import peoples_court as pc
+    from case_analysis import AnalysisRequest, analyze_record
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -356,6 +358,17 @@ def peoples_court_status():
         "legal_effect": "No AI output, panel review, or workflow status is a court order or binding decision.",
         "production_ready": False,
     }
+
+
+
+@app.post("/api/peoples-court/analyze-record")
+def pc_analyze_record(req: AnalysisRequest, x_demo_token: Optional[str] = Header(None)):
+    """Return an extractive traceability report; never recommends a case outcome."""
+    _require_peoples_court_demo(x_demo_token)
+    try:
+        return analyze_record(req)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
 
 
 @app.post("/api/peoples-court/cases")
