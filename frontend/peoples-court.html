@@ -127,7 +127,7 @@ $("determine").onclick=async()=>{try{const body={judicial_officer_id:$("officer"
 
 $("analyzeRecord").onclick=async()=>{try{
  if(!$("analysisSynthetic").checked)throw new Error("Confirm synthetic-only data first.");
- const lines=id=>$(id).value.split("\\n").map(x=>x.trim()).filter(Boolean);
+ const lines=id=>$(id).value.split("\n").map(x=>x.trim()).filter(Boolean);
  const parts=line=>line.split("|").map(x=>x.trim());
  const sources=lines("analysisSources").map(line=>{const p=parts(line);if(p.length<3||!p[0]||!p[1]||!p[2])throw new Error("Each source line needs reference | description | excerpt.");return {reference:p[0],description:p[1],text:p.slice(2).join(" | "),source_type:"synthetic_excerpt"}});
  const positions=lines("analysisPositions").map(line=>{const p=parts(line);if(p.length<2)throw new Error("Each party position needs party label | position | references.");return {party_label:p[0],position:p[1],references:(p[2]||"").split(",").map(x=>x.trim()).filter(Boolean)}});
