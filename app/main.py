@@ -481,6 +481,15 @@ def pc_record_determination(
         raise HTTPException(status_code=409, detail=str(exc))
 
 
+@app.get("/workbench", response_class=HTMLResponse)
+def serve_workbench():
+    """Serve the integrated end-to-end strategy workflow mock-up."""
+    page = FRONTEND_DIR / "nyai-neravu-workbench.html"
+    if not page.exists():
+        raise HTTPException(status_code=404, detail="Nyai-Neravu workbench page not found.")
+    return FileResponse(page)
+
+
 @app.get("/peoples-court", response_class=HTMLResponse)
 def serve_peoples_court():
     page = FRONTEND_DIR / "peoples-court.html"
