@@ -89,6 +89,14 @@ Do not train on, upload or expose actual case records without a lawful basis, in
 
 See [Government First pilot readiness plan](docs/government-first-pilot-readiness.md) for the readiness gaps and eligibility checklist.
 
+## Master strategy and integrated workflow mock-up
+
+The full product vision, legal-source strategy, case lifecycle, multi-agent safeguards, human-authority boundary, staged roadmap, evaluation plan, risk register and Karnataka startup proposal framing are documented in [Nyai-Neravu Master Strategy](docs/nyai-neravu-master-strategy.md).
+
+The integrated, clickable workflow mock-up is available at **[/workbench](https://ny-ai-neravu.onrender.com/workbench)** when deployed, or by opening `frontend/nyai-neravu-workbench.html` in a browser. It walks through case intake, evidence and chronology, legal-source placeholders, party submissions, three simulated review roles, draft decision, human review and audit/next steps. The interactions are local to the browser session; it does not call AI providers, retrieve live law, persist real cases, notify parties or issue decisions. All sample content is fictional.
+
+This mock-up is intended for product discussion with startup evaluators, legal experts and potential academic or institutional partners. It must not be presented as a working legal-reasoning engine or an authorised court service.
+
 ## AI–People's Court workflow prototype
 
 The prototype workflow is available at `/peoples-court`. It demonstrates a proposed sequence of synthetic case intake, draft-package submission, independent citizen review, objection recording and response, escalation, and a human judicial-officer determination attestation. See [AI–People's Court proposal and pilot plan](docs/ai-peoples-court-proposal.md).
