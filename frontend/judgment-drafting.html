@@ -6,7 +6,7 @@
 <style>
 :root{color-scheme:light;--navy:#102d50;--blue:#215b96;--bg:#f3f6fa;--line:#d5deea;--muted:#5c6b7d}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:#172536;font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:var(--navy);color:white;padding:22px max(18px,calc((100% - 1100px)/2))}header h1{margin:0;font-size:26px}header p{margin:5px 0 0;color:#d8e5f5}
+header{background:var(--navy);color:white;padding:18px max(18px,calc((100% - 1100px)/2))}header h1{margin:0;font-size:26px}header p{margin:5px 0 0;color:#d8e5f5}.site-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.site-nav a{display:inline-block;text-decoration:none;color:white;border:1px solid #ffffff70;border-radius:8px;padding:7px 11px;font-size:13px;font-weight:650}.site-nav a[aria-current=page]{background:white;color:var(--navy)}.site-nav a:focus-visible{outline:3px solid #b9d8ff;outline-offset:2px}
 main{max-width:1100px;margin:22px auto;padding:0 16px 48px}.notice{background:#fff6df;border:1px solid #ead49b;border-radius:10px;padding:13px 16px;margin-bottom:16px}
 .layout{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);gap:16px;align-items:start}.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}.panel h2{font-size:20px;margin:0 0 12px}.panel h3{font-size:16px;margin:18px 0 8px}
 label{display:block;font-weight:600;font-size:13px;margin:11px 0 5px}input,select,textarea{width:100%;font:inherit;font-size:14px;padding:10px;border:1px solid #b9c7d8;border-radius:7px;background:white;color:#172536}textarea{min-height:76px;resize:vertical}.hint{font-size:12px;color:var(--muted);margin-top:4px}
@@ -15,7 +15,7 @@ button,.link{display:inline-block;border:0;border-radius:8px;padding:10px 14px;b
 @media(max-width:800px){.layout{grid-template-columns:1fr}header{padding:18px}main{margin-top:14px}.panel{padding:14px}}
 </style></head>
 <body>
-<header><h1>Nyaya Neravu</h1><p>Judgment drafting workspace · Section 138 NI Act and other case types</p></header>
+<header><h1>Nyaya Neravu</h1><p>Judgment drafting workspace · Section 138 NI Act and other case types</p><nav class="site-nav" aria-label="Main navigation"><a href="/">← Main page</a><a href="/workbench">End-to-end workbench</a><a href="/peoples-court">People's Court</a><a href="/judgment-drafting" aria-current="page">Judgment drafting</a></nav></header>
 <main>
 <div class="notice"><strong>Judicial safeguard:</strong> This tool composes a structured draft from information supplied by the user. It does not decide the case, verify law live, or replace judicial reasoning. Check every fact, exhibit, legal authority and proposed direction against the official record. Use only anonymised or authorised case information.</div>
 <div id="caseContext" class="status" hidden></div>
