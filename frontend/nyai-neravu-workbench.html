@@ -1,1 +1,235 @@
-SEE_FILE
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nyai-Neravu | End-to-end workflow demonstrator</title>
+<style>
+:root{color-scheme:light;--bg:#f3f5f8;--paper:#fff;--ink:#182333;--muted:#5e6b7b;--line:#dbe1e9;--navy:#173f70;--blue:#eaf2fb;--teal:#167d70;--amber:#8b5a0a;--amberbg:#fff4d9;--red:#9c3030;--redbg:#fff0ef;--greenbg:#e8f7f0;--shadow:0 5px 20px #13243a0b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}a{color:var(--navy)}header{background:var(--paper);border-bottom:1px solid var(--line);padding:16px max(18px,calc((100vw - 1220px)/2));display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}.brand{display:flex;gap:12px;align-items:center}.mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--navy);color:white;font-weight:800;font-size:19px}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:800;color:var(--muted)}h1{font-size:22px;margin:2px 0}h2{font-size:20px;margin:0 0 7px}h3{font-size:15px;margin:0 0 8px}.sub{color:var(--muted);font-size:13px}.toplinks{display:flex;gap:8px;flex-wrap:wrap}.toplinks a{border:1px solid var(--line);padding:7px 10px;border-radius:8px;text-decoration:none;font-size:13px}.banner{background:var(--amberbg);border-bottom:1px solid #efd7a2;color:#62420d;padding:10px 18px;text-align:center;font-size:13px;font-weight:650}.layout{max-width:1220px;margin:auto;padding:20px 18px 50px;display:grid;grid-template-columns:245px minmax(0,1fr);gap:18px}.sidebar{align-self:start;position:sticky;top:14px}.sidecard,.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.sidecard{padding:12px}.side-title{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.09em;padding:7px 8px}.stepnav{display:grid;gap:4px}.stepnav button{display:flex;gap:10px;align-items:center;text-align:left;border:0;background:transparent;border-radius:9px;padding:9px;color:var(--ink);font:inherit;cursor:pointer}.stepnav button:hover{background:#f1f5f9}.stepnav button.active{background:var(--blue);color:var(--navy);font-weight:750}.num{width:27px;height:27px;border-radius:8px;background:#eef1f5;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none}.active .num{background:var(--navy);color:white}.sidefoot{padding:12px 8px 4px;font-size:12px;color:var(--muted)}main{min-width:0}.hero{padding:23px;margin-bottom:14px;background:linear-gradient(120deg,#163c69,#275f87);color:white;border-radius:16px}.hero h2{font-size:25px;max-width:700px}.hero p{color:#e2edf8;max-width:730px;margin:8px 0 0}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}.metric{padding:14px;background:var(--paper);border:1px solid var(--line);border-radius:12px}.metric strong{display:block;font-size:22px}.metric span{color:var(--muted);font-size:12px}.card{padding:18px;margin-bottom:14px}.sectionhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:15px}.pill{display:inline-flex;align-items:center;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:800;background:#edf1f5;color:#465466}.pill.demo{background:var(--amberbg);color:var(--amber)}.pill.good{background:var(--greenbg);color:#17674f}.pill.info{background:var(--blue);color:var(--navy)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.subcard{border:1px solid var(--line);border-radius:11px;padding:14px;min-width:0}.subcard p{margin:5px 0;color:var(--muted);font-size:13px}.subcard .big{font-size:17px;font-weight:750}.subcard .tag{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}.alert{padding:11px 12px;border-radius:9px;background:var(--amberbg);color:#6b4b0c;font-size:13px;margin:10px 0}.alert.red{background:var(--redbg);color:var(--red)}.field{margin:10px 0}label{display:block;font-weight:700;font-size:12px;margin-bottom:5px}input,select,textarea{width:100%;border:1px solid #cbd4df;border-radius:8px;padding:10px;font:inherit;background:#fff}textarea{min-height:90px;resize:vertical}button{font:inherit;cursor:pointer}.btn{border:1px solid var(--line);background:white;border-radius:8px;padding:9px 12px;font-weight:700}.btn.primary{background:var(--navy);color:white;border-color:var(--navy)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;border-bottom:1px solid var(--line);padding:10px;vertical-align:top}th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.statusrow{display:flex;gap:8px;align-items:flex-start;margin:10px 0}.dot{width:9px;height:9px;border-radius:50%;background:var(--teal);margin-top:6px;flex:none}.auditrow{display:grid;grid-template-columns:120px 1fr;gap:10px;border-bottom:1px solid var(--line);padding:10px 0;font-size:13px}.auditrow time{color:var(--muted)}.stepactions{display:flex;justify-content:space-between;gap:8px;margin:10px 0 16px}.footnote{color:var(--muted);font-size:12px}.toast{position:fixed;bottom:18px;right:18px;background:#172333;color:white;padding:12px 16px;border-radius:10px;max-width:360px;z-index:10}.progress{height:7px;background:#e8edf3;border-radius:9px;overflow:hidden;margin:12px 0}.progress span{display:block;height:100%;width:22%;background:#2c7290}.disclaimer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px;margin-top:14px}.dialogue{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0;background:#fafbfd}.dialogue .who{font-weight:800;font-size:12px;color:var(--navy);margin-bottom:4px}.dialogue .who.judge{color:var(--teal)}.dialogue .who.partyA{color:#6b3a1a}.dialogue .who.partyB{color:#3a3a6b}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebar{position:static}.grid,.grid3{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="mark">न्य</div><div><div class="eyebrow">Nyai-Neravu · Strategy prototype</div><h1>Source-grounded case workflow</h1><div class="sub">Legal knowledge · Evidence traceability · Human judicial review</div></div></div>
+ <div class="toplinks"><a href="/">Main dashboard</a><a href="/peoples-court">Workflow API demo</a><a href="/judgment-drafting">Draft composer</a></div>
+</header>
+<div class="banner">ILLUSTRATIVE MOCK-UP · All case facts, sources and decisions on this page are fictional. No real legal research or adjudication is performed.</div>
+<div class="layout">
+<aside class="sidebar">
+ <div class="sidecard">
+  <div class="side-title">Case journey</div>
+  <nav class="stepnav" id="stepnav">
+   <button type="button" class="active" data-step="0"><span class="num">00</span><span>Overview</span></button>
+   <button type="button" data-step="1"><span class="num">01</span><span>Case intake</span></button>
+   <button type="button" data-step="2"><span class="num">02</span><span>Evidence & facts</span></button>
+   <button type="button" data-step="3"><span class="num">03</span><span>Legal knowledge</span></button>
+   <button type="button" data-step="4"><span class="num">04</span><span>Party hearing</span></button>
+   <button type="button" data-step="5"><span class="num">05</span><span>AI review panel</span></button>
+   <button type="button" data-step="6"><span class="num">06</span><span>Draft decision</span></button>
+   <button type="button" data-step="7"><span class="num">07</span><span>Human review</span></button>
+   <button type="button" data-step="8"><span class="num">08</span><span>Audit & next steps</span></button>
+  </nav>
+  <div class="progress"><span id="progressbar"></span></div>
+  <div class="sidefoot">Progress is local to this browser tab only.</div>
+ </div>
+</aside>
+<main>
+<section class="hero">
+ <div class="eyebrow" style="color:#c6d9ef">Proposed platform · end-to-end concept</div>
+ <h2>From legal question to a reviewable, source-linked decision package.</h2>
+ <p>Organise the record, connect legal sources, hear both sides online, run independent analysis lanes, prepare a draft, and leave the final decision to the authorised human authority.</p>
+</section>
+<div class="metrics">
+ <div class="metric"><strong id="metricStage">0 / 8</strong><span>Workflow stages explored</span></div>
+ <div class="metric"><strong>0</strong><span>Verified live legal sources</span></div>
+ <div class="metric"><strong>3</strong><span>Illustrative reviewer lanes</span></div>
+ <div class="metric"><strong>100%</strong><span>Final decision remains human</span></div>
+</div>
+
+<section id="step-0" class="step">
+ <div class="card">
+  <div class="sectionhead"><div><div class="eyebrow">Start here</div><h2>What Nyai-Neravu is intended to become</h2></div><span class="pill demo">Concept stage</span></div>
+  <div class="grid">
+   <div class="subcard"><div class="tag">Knowledge layer</div><div class="big">Law, linked and versioned</div><p>Constitution, statutes, rules and judgments with source provenance.</p></div>
+   <div class="subcard"><div class="tag">Case layer</div><div class="big">Every claim linked to a record</div><p>Documents, chronology, party positions, evidence and missing information.</p></div>
+   <div class="subcard"><div class="tag">Challenge layer</div><div class="big">Independent scrutiny</div><p>Separate analytical tasks identify contrary arguments and unsupported claims.</p></div>
+   <div class="subcard"><div class="tag">Authority layer</div><div class="big">Human decision-maker stays in control</div><p>AI prepares reviewable material. Only a legally authorised authority decides.</p></div>
+  </div>
+  <div class="alert">This walkthrough uses one fictional sample case. No real law is retrieved and no AI model is called.</div>
+  <h3>Illustrative case</h3>
+  <div class="grid">
+   <div><label>Demo case title</label><input value="Sharma Traders v. Apex Logistics Pvt. Ltd. (fictional)"></div>
+   <div><label>Case category</label><select><option selected>Civil — contract / payment dispute (fictional)</option></select></div>
+  </div>
+  <div class="field"><label>One-line issue summary</label><textarea>Whether the respondent failed to deliver goods as per a written agreement dated 10 Jan 2025 and is liable to refund the advance of ₹4,50,000. All facts are fictional.</textarea></div>
+  <div class="actions"><button type="button" class="btn primary" data-go="1">Begin case walkthrough →</button><button type="button" class="btn" id="resetDemo">Reset demo</button></div>
+ </div>
+</section>
+
+<section id="step-1" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 01</div><h2>Case intake and jurisdiction</h2></div><span class="pill demo">Mock data</span></div>
+  <div class="grid">
+   <div class="field"><label>Internal demo reference</label><input value="NN-DEMO-2025-0142"></div>
+   <div class="field"><label>Jurisdiction / forum note</label><input value="Civil court — to be confirmed by authorised reviewer (fictional)"></div>
+   <div class="field"><label>Party A (Claimant)</label><input value="Sharma Traders (fictional)"></div>
+   <div class="field"><label>Party B (Respondent)</label><input value="Apex Logistics Pvt. Ltd. (fictional)"></div>
+   <div class="field"><label>Relief requested</label><input value="Refund of ₹4,50,000 advance + interest (illustrative only)"></div>
+   <div class="field"><label>Procedural stage</label><select><option>Initial review</option><option selected>Evidence submission</option><option>Arguments</option></select></div>
+  </div>
+  <div class="alert">Eligibility and jurisdiction checks are not implemented here.</div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" id="saveIntake">Save demo intake</button><button type="button" class="btn primary" data-go="2">Next: evidence →</button></div>
+ </div>
+</section>
+
+<section id="step-2" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 02</div><h2>Document inventory, facts and chronology</h2></div><span class="pill demo">Fictional exhibits</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Reference</th><th>Submitted by</th><th>Item</th><th>State</th></tr></thead><tbody>
+   <tr><td>Ex.P1</td><td>Party A</td><td>Written agreement dated 10 Jan 2025</td><td><span class="pill demo">Not authenticated</span></td></tr>
+   <tr><td>Ex.P2</td><td>Party A</td><td>Bank transfer for ₹4,50,000 advance</td><td><span class="pill demo">Not authenticated</span></td></tr>
+   <tr><td>Ex.P3</td><td>Party A</td><td>Email chain demanding delivery / refund</td><td><span class="pill demo">Not authenticated</span></td></tr>
+   <tr><td>Ex.D1</td><td>Party B</td><td>Reply letter claiming goods were delivered</td><td><span class="pill demo">Not authenticated</span></td></tr>
+   <tr><td>Ex.D2</td><td>Party B</td><td>Unsigned delivery challan</td><td><span class="pill demo">Not authenticated</span></td></tr>
+  </tbody></table></div>
+  <div class="grid">
+   <div class="field"><label>Proposed chronology</label><textarea>2025-01-10 | Agreement allegedly signed | Ex.P1 | Unverified
+2025-01-12 | Advance paid | Ex.P2 | Unverified
+2025-02-15 | Claimant demands delivery | Ex.P3 | Unverified
+2025-03-01 | Respondent claims delivery completed | Ex.D1 | Unverified
+2025-03-10 | Claimant disputes delivery, seeks refund | Ex.P3 | Unverified</textarea></div>
+   <div class="field"><label>Missing / conflicting information</label><textarea>• Original signed agreement not produced
+• Delivery challan (Ex.D2) is unsigned
+• Parties dispute date and place of delivery
+• No third-party carrier or warehouse record
+No finding should be inferred from this sample.</textarea></div>
+  </div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" id="saveEvidence">Save demo record</button><button type="button" class="btn primary" data-go="3">Next: legal knowledge →</button></div>
+ </div>
+</section>
+
+<section id="step-3" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 03</div><h2>Legal knowledge and authority graph</h2></div><span class="pill demo">No live research</span></div>
+  <div class="field"><label>Legal research question</label><textarea>In a fictional sale of goods dispute: essential elements for claiming refund of advance when delivery is disputed? (Illustrative only.)</textarea></div>
+  <div class="grid3">
+   <div class="subcard"><div class="tag">Constitution / statute</div><div class="big">Source record L-001</div><p>Placeholder for Sale of Goods / Contract Act provisions.</p><span class="pill demo">Not connected</span></div>
+   <div class="subcard"><div class="tag">Judgment</div><div class="big">Authority record J-001</div><p>Placeholder for SC/HC decision on burden of proof for delivery.</p><span class="pill demo">Not verified</span></div>
+   <div class="subcard"><div class="tag">Contrary authority</div><div class="big">Conflict record C-001</div><p>Placeholder to distinguish competing authorities.</p><span class="pill demo">Not researched</span></div>
+  </div>
+  <div class="alert red">This screen does not retrieve or verify Indian law.</div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" id="saveLaw">Save research placeholder</button><button type="button" class="btn primary" data-go="4">Next: party hearing →</button></div>
+ </div>
+</section>
+
+<section id="step-4" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 04</div><h2>Online party hearing (mock)</h2></div><span class="pill demo">Simulated exchange</span></div>
+  <div class="dialogue"><div class="who partyA">Party A (Claimant)</div>
+  The respondent accepted our advance of ₹4,50,000 under the agreement dated 10 Jan 2025 (Ex.P1, Ex.P2). Despite repeated demands (Ex.P3), no goods were delivered. We seek refund with interest. We dispute the unsigned delivery challan (Ex.D2).</div>
+  <div class="dialogue"><div class="who partyB">Party B (Respondent)</div>
+  Goods were delivered on or about 28 Feb 2025. The delivery challan (Ex.D2) and our reply (Ex.D1) record this. The claim for refund is an afterthought. We deny liability.</div>
+  <div class="dialogue"><div class="who judge">Nyai-Neravu (neutral questions — mock)</div>
+  1. Does either party produce a signed acknowledgment of receipt?<br>
+  2. What is the contractual delivery timeline and place in Ex.P1?<br>
+  3. Has each party had an opportunity to respond to the other side's documents?</div>
+  <div class="grid">
+   <div class="subcard"><h3>Party A further response</h3><div class="field"><textarea id="submissionA">We reiterate that Ex.D2 is unsigned. No independent proof of delivery exists.</textarea></div><button type="button" class="btn" id="saveA">Record Party A</button></div>
+   <div class="subcard"><h3>Party B further response</h3><div class="field"><textarea id="submissionB">Delivery was through our regular transporter. The signature page appears to have been misfiled. We can produce additional records if directed.</textarea></div><button type="button" class="btn" id="saveB">Record Party B</button></div>
+  </div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" id="saveHearing">Save hearing record</button><button type="button" class="btn primary" data-go="5">Next: AI review panel →</button></div>
+ </div>
+</section>
+
+<section id="step-5" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 05</div><h2>Independent AI review panel (simulated)</h2></div><span class="pill demo">Simulated outputs</span></div>
+  <div class="grid3">
+   <div class="subcard"><span class="pill info">Reviewer A · Analyst</span><h3 style="margin-top:10px">Issue & evidence map</h3><div class="alert">Mock: Delivery is the core disputed fact. Ex.D2 lacks signature; no independent acknowledgment.</div></div>
+   <div class="subcard"><span class="pill info">Reviewer B · Challenger</span><h3 style="margin-top:10px">Contrary view</h3><div class="alert">Mock: Both sides have incomplete proof. Claimant has no warehouse logs either.</div></div>
+   <div class="subcard"><span class="pill info">Reviewer C · Source auditor</span><h3 style="margin-top:10px">Citation check</h3><div class="alert red">Mock: No legal authority verified in this demo. Mark any citation as unverified until checked.</div></div>
+  </div>
+  <div class="field"><label>Disagreement register</label><textarea>• Reviewers A and B flag incomplete proof of delivery.
+• Reviewer C flags absence of verified legal authorities.
+• No model consensus is treated as a legal finding.
+• Escalate to human reviewer before draft findings.</textarea></div>
+  <div class="alert red">Three models agreeing does not eliminate hallucinations. This panel does not call any external AI.</div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" id="savePanel">Save panel statuses</button><button type="button" class="btn primary" data-go="6">Next: draft decision →</button></div>
+ </div>
+</section>
+
+<section id="step-6" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 06</div><h2>Draft decision package</h2></div><span class="pill demo">Illustrative draft</span></div>
+  <div class="alert">Sample structure with fictional content. Not a generated or legally reasoned judgment.</div>
+  <div class="field"><label>Draft heading</label><input value="DRAFT ONLY — FICTIONAL CASE NN-DEMO-2025-0142 — NOT A JUDICIAL DECISION"></div>
+  <div class="field"><label>Editable draft</label><textarea style="min-height:280px">1. Case history
+Claimant seeks refund of ₹4,50,000 allegedly paid as advance. Respondent asserts delivery. This draft is for human review of structure only.
+
+2. Issues
+(i) Whether a binding agreement existed.
+(ii) Whether goods were delivered.
+(iii) Whether refund is due.
+(All issues remain for independent judicial determination.)
+
+3. Party A submissions
+Agreement (Ex.P1), payment (Ex.P2), demands (Ex.P3). Challenges Ex.D2 as unsigned.
+
+4. Party B submissions
+Delivery ~28 Feb 2025 (Ex.D1, Ex.D2). Denies liability.
+
+5. Evidence
+Ex.P1–P3, Ex.D1–D2. Missing: signed acknowledgment; independent transporter record.
+
+6. Applicable law
+[No statute or judgment verified in this demo.]
+
+7. Analysis (for human review only)
+Proof of delivery incomplete on both sides. No finding on liability proposed by this system.
+
+8. Operative portion
+[Left blank. Only a legally authorised decision-maker may make findings.]
+
+9. Limitations
+All content fictional. No live legal research. No legal effect.</textarea></div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" id="saveDraft">Save draft package</button><button type="button" class="btn primary" data-go="7">Send to human review →</button></div>
+ </div>
+</section>
+
+<section id="step-7" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 07</div><h2>Human legal / judicial review</h2></div><span class="pill demo">No legal effect</span></div>
+  <div class="grid">
+   <div class="subcard"><h3>Review checklist</h3>
+    <div class="statusrow"><span class="dot"></span><div><b>Original record</b><div class="sub">Check against official materials.</div></div></div>
+    <div class="statusrow"><span class="dot"></span><div><b>Both parties' arguments</b><div class="sub">Coverage and opportunity to respond.</div></div></div>
+    <div class="statusrow"><span class="dot"></span><div><b>Legal authorities</b><div class="sub">Verify existence and proposition support.</div></div></div>
+    <div class="statusrow"><span class="dot"></span><div><b>Unresolved issues</b><div class="sub">Resolve or record why open.</div></div></div>
+   </div>
+   <div class="subcard"><h3>Reviewer decision (demo only)</h3>
+    <div class="field"><label>Reviewer role</label><select><option selected>Judicial officer — fictional</option><option>Legal reviewer — fictional</option></select></div>
+    <div class="field"><label>Review action</label><select><option>Return for corrections</option><option>Request further submissions</option><option selected>Reviewed — reference only (no legal effect)</option></select></div>
+    <div class="field"><label>Review notes</label><textarea>Demo: Proof of delivery incomplete. Direct parties to produce signed acknowledgment or transporter record, or proceed on existing materials. No finding by this system.</textarea></div>
+   </div>
+  </div>
+  <div class="alert red">This only records a local demo event. It is not approval, determination or a court order.</div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" id="recordHumanReview">Record mock review</button><button type="button" class="btn primary" data-go="8">Next: audit →</button></div>
+ </div>
+</section>
+
+<section id="step-8" class="step hidden">
+ <div class="card"><div class="sectionhead"><div><div class="eyebrow">Stage 08</div><h2>Audit trail and next steps</h2></div><span class="pill demo">Session-local only</span></div>
+  <h3>Session audit log</h3>
+  <div id="auditLog"></div>
+  <div class="grid" style="margin-top:16px">
+   <div class="subcard"><div class="tag">What this demo showed</div><div class="big">End-to-end sequence</div><p>Intake → evidence → legal placeholder → party exchange → three simulated review lanes → draft → human review → audit.</p></div>
+   <div class="subcard"><div class="tag">What is still missing</div><div class="big">Everything that makes it real</div><p>Verified legal corpus, document authentication, durable storage, identity/RBAC, real multi-model analysis, court integration, lawful adjudicatory framework.</p></div>
+  </div>
+  <div class="alert">Higher-court review is left outside this mock. Any future layer faces the same requirements of law, institution and human authority.</div>
+  <div class="disclaimer">This prototype does not call AI models, search legal databases, persist case records, notify parties or connect to a court. All sample content is fictional.</div>
+  <div class="actions"><button type="button" class="btn" data-back>← Previous</button><button type="button" class="btn primary" data-go="0">Return to overview</button><button type="button" class="btn" id="resetDemo2">Reset demo</button></div>
+ </div>
+</section>
+
+<div class="stepactions"><button type="button" class="btn" id="prevBtn">← Previous stage</button><button type="button" class="btn primary" id="nextBtn">Next stage →</button></div>
+<p class="footnote">Interactive front-end mock-up only. No AI models, legal databases, or court connections.</p>
+</main>
+</div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<script src="/workbench.js"></script>
+</body>
+</html>
