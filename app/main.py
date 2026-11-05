@@ -312,6 +312,14 @@ def serve_judgment_drafting():
         raise HTTPException(status_code=404, detail="Judgment drafting page not found")
     return FileResponse(page)
 
+@app.get("/dashboard", response_class=HTMLResponse)
+def serve_dashboard():
+    """Legacy secretary / multi-role dashboard."""
+    page = FRONTEND_DIR / "dashboard.html"
+    if not page.exists():
+        raise HTTPException(status_code=404, detail="Dashboard page not found.")
+    return FileResponse(page)
+
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
     index = FRONTEND_DIR / "index.html"
